@@ -4,7 +4,7 @@ import { HomeModel, HomeObject } from "../data-access/repositories/home_model";
 
 const homeRepo: HomeModel = new HomeRepo(db);
 
-export const addHome = function (home: HomeObject): Promise<number[] | Error> {
+export const addHome = async (home: HomeObject): Promise<number[] | Error> => {
   const isHomeObj = validateHomeObj(home);
   let uuid: number[] = [];
   if (isHomeObj) {
@@ -15,7 +15,11 @@ export const addHome = function (home: HomeObject): Promise<number[] | Error> {
   }
   return Promise.resolve(uuid);
 };
+export const deactivateHome = async (id: string) => {};
+export const getHomeById = async (id: string) => {};
+export const getAllHomes = async () => {};
 
 const validateHomeObj = function (home: any): home is HomeObject {
+  //TODO Add more validations
   return "type" in home && (home.type === "Rent" || home.type === "Sale");
 };

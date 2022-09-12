@@ -22,6 +22,7 @@
     "passport-http-bearer": "^1.0.1",
     "pg": "^8.7.3",
     "uuid": "^8.3.2",
+    "validatorjs": "^3.22.1",
     "winston": "^3.8.1"
   },
   "devDependencies": {

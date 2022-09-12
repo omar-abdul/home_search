@@ -15,5 +15,5 @@ export interface HomeModel {
   addHome(home: HomeObject): Promise<number[]>;
   removeHome(uuid: string): Promise<number>;
   getAllHomes(): Promise<HomeObject[]>;
-  getSingleHome(uuid: string): Promise<HomeObject[]>;
+  getHomebyID(uuid: string): Promise<HomeObject[]>;
 }

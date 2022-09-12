@@ -15,7 +15,7 @@ export default class HomeRepo {
   async getAllHomes() {
     return await this.HomeDb().select("*");
   }
-  async getSingleHome(uuid: string) {
+  async getHomebyID(uuid: string) {
     return await this.HomeDb().select("*").where("home_id", uuid);
   }
 }

@@ -11,6 +11,7 @@ interface User {
   middleName?: string;
   password: string;
   salt?: string | "";
+  active?: boolean;
 }
 interface Session {
   sessionId: string;
@@ -24,14 +25,17 @@ export type SessionObject = Partial<Session> &
 
 export interface UserModel {
   addUser(user: UserObject): Promise<Pick<UserObject, "id">[]>;
-  getSingleUser(id: string): Promise<UserObject[]>;
+  getUserById(id: string): Promise<UserObject[]>;
   getAllUsers(): Promise<UserObject[]>;
   getUserByEmail(email: string): Promise<UserObject[]>;
   getUserByNumber(phoneNumner: number): Promise<UserObject[]>;
-  getUserBySession(token: string): Promise<SessionObject[]>;
+  getUserSession(token: string): Promise<SessionObject[]>;
   delUser(id: string): Promise<number>;
   addUserSession(
     id: string,
     token: string
   ): Promise<Pick<SessionObject, "sessionId">[]>;
+  getUserFromSessionId(token: string): Promise<any[]>;
+  deactivateUser(id: string): Promise<Pick<UserObject, "id">[]>;
+  deleteAllUserSessions(user_id: string): Promise<number>;
 }

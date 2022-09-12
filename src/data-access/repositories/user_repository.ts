@@ -11,7 +11,7 @@ export default class UserRepo {
   async addUser(user: UserObject) {
     return await this.UserDb().insert(user).returning("id");
   }
-  async getSingleUser(id: string) {
+  async getUserById(id: string) {
     return await this.UserDb().where("id", id).select("*");
   }
   async getUserByEmail(email: string) {
@@ -20,7 +20,7 @@ export default class UserRepo {
   async getUserByNumber(phoneNumber: number) {
     return await this.UserDb().where("phoneNumber", phoneNumber).select("*");
   }
-  async getUserBySession(token: string) {
+  async getUserSession(token: string) {
     return await this.sessionDb().where("session_id", token).select("*");
   }
   async getAllUsers() {
@@ -35,5 +35,17 @@ export default class UserRepo {
       { sessionId: token, userId: id, isRevoked: false },
       "sessionId"
     );
+  }
+  async getUserFromSessionId(token: string) {
+    return await this.UserDb()
+      .join("sessions", "users.id", "sessions.user_id")
+      .where("sessions.sessionId", token)
+      .select("*");
+  }
+  async deactivateUser(id: string) {
+    return await this.UserDb().update("active", false, "id").where("id", id);
+  }
+  async deleteAllUserSessions(id: string) {
+    return await this.sessionDb().where("userId", id).del();
   }
 }
