@@ -9,24 +9,27 @@ import crypto from "crypto";
 import db from "../data-access/config/db";
 import UserRepo from "../data-access/repositories/user_repository";
 import { UserModel, UserObject } from "../data-access/repositories/user_model";
-import { genRandomId } from "../util/util";
+import { genRandomId, getCryptoRandomId, responseObject } from "../util/util";
 
 const userRepo: UserModel = new UserRepo(db);
 
 export const addUser = async (user: UserObject) => {
   const isValidUser = validateUser(user);
   let res: Pick<UserObject, "id">[] = [];
-  if (!isValidUser.err) {
+  if (isValidUser.err !== undefined) {
     return responseObject({ err: isValidUser.err, data: null, success: false });
   }
-  let { id, salt, password } = user;
-  id = await genRandomId();
-  salt = crypto.randomBytes(16).toString("hex");
+  let { salt } = user;
+
+  salt = getCryptoRandomId(16);
   const hash = crypto
     .pbkdf2Sync(user.password, salt, 1000, 64, "sha512")
     .toString("hex");
-  password = hash;
+  user.id = await genRandomId();
+  user.password = hash;
+  user.salt = salt;
   res = await userRepo.addUser(user);
+
   if (res.length > 0) return responseObject({ data: res[0].id, success: true });
   return responseObject({
     err: "Something went wrong",
@@ -89,7 +92,12 @@ export const getUserById = async (id: string) => {
 };
 export const getUserFromSessionId = async (token: string) => {
   const user = await userRepo.getUserFromSessionId(token);
-  if (user.length === 0) return { err: "User not found", data: undefined };
+  if (user.length === 0)
+    return responseObject({
+      err: "User not found",
+      data: null,
+      success: false,
+    });
 
   return responseObject({ success: true, data: user[0] });
 };
@@ -119,16 +127,4 @@ export const removeUser = async (id: string) => {
 const validateUser = (user: UserObject): { err: string | undefined } => {
   //TODO validate user
   return { err: undefined };
-};
-
-const responseObject = ({
-  err = null,
-  success = false,
-  data = null,
-}: {
-  err?: any;
-  success: boolean;
-  data: any;
-}) => {
-  return { err, success, data };
 };

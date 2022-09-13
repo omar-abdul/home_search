@@ -1,4 +1,5 @@
 import { Knex } from "knex";
+import crypto from "crypto";
 export const convertToSnakeCase = (str: string): string =>
   str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
 
@@ -15,4 +16,20 @@ export const genRandomId = (): Promise<string> => {
       1
     );
   });
+};
+
+export const getCryptoRandomId = (size: number) => {
+  return crypto.randomBytes(size | 16).toString("hex");
+};
+
+export const responseObject = ({
+  err = null,
+  success = false,
+  data = null,
+}: {
+  err?: any;
+  success: boolean;
+  data?: any;
+}) => {
+  return { err, success, data };
 };

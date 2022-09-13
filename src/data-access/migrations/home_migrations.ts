@@ -14,8 +14,11 @@ export = {
   },
   down: async (db: Knex) => {
     return await db.schema
-      .dropTableIfExists("homes")
+      .dropTableIfExists("payments")
+      .dropTableIfExists("homes_nearby_locations")
+      .dropTableIfExists("nearby_locations")
       .dropTableIfExists("sessions")
+      .dropTableIfExists("homes")
       .dropTableIfExists("users");
   },
 };
@@ -45,7 +48,8 @@ async function CreateTables(db: Knex) {
       table
         .uuid("home_id")
         .notNullable()
-        .defaultTo(db.raw("uuid_generate_v4()"));
+        .defaultTo(db.raw("uuid_generate_v4()"))
+        .unique();
       table.enu("type", ["Rent", "Sale"]);
       table.enu("location", locations);
       table.text("description");
@@ -59,7 +63,15 @@ async function CreateTables(db: Knex) {
         .onDelete("Cascade")
         .onUpdate("Cascade");
       table.primary(["id", "home_id"]);
-      table.boolean("active");
+      table
+        .enu("status", [
+          "active",
+          "pending payment",
+          "sold",
+          "inactive",
+          "not available",
+        ])
+        .defaultTo("inactive");
       table.dateTime("created_at").defaultTo(db.fn.now());
       table.boolean("is_paid").notNullable();
     })
@@ -82,7 +94,7 @@ async function CreateTables(db: Knex) {
     .createTable("homes_nearby_locations", (table) => {
       table.increments("id").primary();
       table
-        .string("home_id")
+        .uuid("home_id")
         .references("home_id")
         .inTable("homes")
         .onDelete("Cascade")
@@ -99,7 +111,7 @@ async function CreateTables(db: Knex) {
       db.raw("CREATE EXTENSION IF NOT EXISTS 'uuid-ossp'");
       table.string("uuid").defaultTo(db.raw("uuid_generate_v4()")).primary();
       table
-        .string("home_id")
+        .uuid("home_id")
         .references("home_id")
         .inTable("homes")
         .onDelete("Cascade")
