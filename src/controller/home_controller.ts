@@ -6,57 +6,64 @@ import {
   Status,
 } from "../data-access/repositories/home_model";
 import { getCryptoRandomId, responseObject } from "../util/util";
+import { ResourceNotFoundError, ValidationError } from "../util/customerrors";
 
 const homeRepo: HomeModel = new HomeRepo(db);
 
 export const addHome = async (home: HomeObject) => {
-  const isHomeObj = validateHomeObj(home);
-  if (!isHomeObj)
-    return responseObject({ err: "Error in validation", success: false });
-  home.id = getCryptoRandomId(8);
-  const homeId = await homeRepo.addHome(home);
-  if (homeId.length === 0)
-    return responseObject({
-      err: "There was an error in adding the listing",
-      success: false,
-    });
-  return responseObject({ success: true, data: homeId[0].id });
+  try {
+    const isHomeObj = validateHomeObj(home);
+    if (isHomeObj.err)
+      return responseObject({
+        err: new ValidationError(isHomeObj.err),
+        data: null,
+      });
+    home.id = getCryptoRandomId(8);
+    const homeId = await homeRepo.addHome(home);
+    if (homeId.length === 0)
+      return responseObject({
+        err: new ResourceNotFoundError(),
+        data: null,
+      });
+    return responseObject({ data: homeId[0].id, err: null });
+  } catch (error) {
+    throw error;
+  }
 };
 export const deactivateHome = async (id: string) => {
-  let updated;
   try {
-    updated = await homeRepo.changeHomeStatus(Status.Inactive, id);
-  } catch (e) {
-    console.log(e);
-    return responseObject({
-      success: false,
-      err: e,
-    });
+    const updated = await homeRepo.changeHomeStatus(Status.Inactive, id);
+    return updated > 0
+      ? responseObject({ err: null, data: "Home status updated" })
+      : responseObject({ err: new ResourceNotFoundError(), data: null });
+  } catch (error) {
+    throw error;
   }
-
-  //if (updated === undefined || updated === null) console.log(updated);
-  return responseObject({ success: true, data: "listing updated" });
 };
 export const getHomeById = async (id: string) => {
-  const home = await homeRepo.getHomebyID(id);
-  if (home === undefined || home === null)
-    return responseObject({
-      success: false,
-      err: "Something went wrong retriving the error",
-    });
-  return responseObject({ success: true, data: home[0] });
+  try {
+    const home = await homeRepo.getHomebyID(id);
+    if (home === undefined || home === null)
+      return responseObject({
+        err: new ResourceNotFoundError(),
+        data: null,
+      });
+    return responseObject({ data: home[0] });
+  } catch (error) {
+    throw error;
+  }
 };
 export const getAllHomes = async (opts: object) => {
-  const homes = await homeRepo.getAllHomes(opts);
-  if (homes === undefined || homes === null)
-    return responseObject({
-      err: "There was an error retriving",
-      success: false,
-    });
-  return responseObject({ success: true, data: homes });
+  try {
+    const homes = await homeRepo.getAllHomes(opts);
+    return responseObject({ data: homes, err: null });
+  } catch (error) {
+    throw error;
+  }
 };
 
-const validateHomeObj = function (home: any): home is HomeObject {
+const validateHomeObj = function (home: any): { err: string | null } {
   //TODO Add more validations
-  return "type" in home && (home.type === "Rent" || home.type === "Sale");
+  //return "type" in home && (home.type === "Rent" || home.type === "Sale");
+  return { err: "" };
 };

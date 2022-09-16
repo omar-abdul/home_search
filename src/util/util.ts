@@ -1,7 +1,19 @@
 import { Knex } from "knex";
 import crypto from "crypto";
-export const convertToSnakeCase = (str: string): string =>
-  str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
+export const convertToSnakeCase = (str: string): string => {
+  return str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
+};
+export const convertToCamelCase = function (str: any) {
+  if (typeof str === "object") {
+    const replace = (s: string) =>
+      s.replace(/([_][a-z])/g, (letters) =>
+        letters.toUpperCase().replace("_", "")
+      );
+    return Object.fromEntries(
+      Object.entries(str).map(([k, v], i) => [replace(k), v])
+    );
+  }
+};
 
 export const tableExists = async (
   knex: Knex,
@@ -24,12 +36,10 @@ export const getCryptoRandomId = (size: number) => {
 
 export const responseObject = ({
   err = null,
-  success = false,
   data = null,
 }: {
   err?: any;
-  success: boolean;
   data?: any;
 }) => {
-  return { err, success, data };
+  return { err, data };
 };

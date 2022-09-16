@@ -1,5 +1,8 @@
 /* Interfaces and User/Session Objects */
 
+import { BinaryLike } from "crypto";
+import { CustomDatabaseError } from "../../util/customerrors";
+
 interface User {
   id?: string;
   phoneNumber: number;
@@ -10,7 +13,7 @@ interface User {
   lastName: string;
   middleName?: string;
   password: string;
-  salt?: string | "";
+  salt: string;
   active?: boolean;
 }
 interface Session {

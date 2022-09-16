@@ -1,6 +1,6 @@
 import knex from "knex";
 import dotenv from "dotenv";
-import { convertToSnakeCase } from "../../util/util";
+import { convertToCamelCase, convertToSnakeCase } from "../../util/util";
 dotenv.config();
 const con = process.env.DB_CONN_STRING;
 const config = {
@@ -13,6 +13,16 @@ const config = {
     migrations: {
       tableName: "knex_migrations",
     },
+    postProcessResponse: (result: any, queryContext: any) => {
+      if (queryContext === "crud_functions") {
+        if (Array.isArray(result)) {
+          return result.map((row) => {
+            return convertToCamelCase(row);
+          });
+        }
+      }
+      return result;
+    },
   },
   production: {
     client: "pg",
@@ -20,6 +30,16 @@ const config = {
 
     wrapIdentifier: (value: any, origImpl: any, queryContext: any) =>
       origImpl(convertToSnakeCase(value)),
+  },
+  postProcessResponse: (result: any, queryContext: any) => {
+    if (queryContext === "crud_functions") {
+      if (Array.isArray(result)) {
+        return result.map((row) => {
+          return convertToCamelCase(row);
+        });
+      }
+    }
+    return result;
   },
 };
 
