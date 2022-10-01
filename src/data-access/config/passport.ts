@@ -14,9 +14,7 @@ const BearerStrategy = new Strategy(function (
   User.getUserFromSessionId(token)
     .then((rows) => {
       if ((rows.length = 0)) return cb(null, false);
-      const user = {
-        user: rows[0],
-      };
+      const user: UserObject = rows[0];
       return cb(null, user);
     })
     .catch((err) => {

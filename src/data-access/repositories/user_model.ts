@@ -3,7 +3,7 @@
 import { BinaryLike } from "crypto";
 import { CustomDatabaseError } from "../../util/customerrors";
 
-interface User {
+export interface User {
   id?: string;
   phoneNumber: number;
   userName: string;

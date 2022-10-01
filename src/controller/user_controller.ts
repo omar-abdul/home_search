@@ -117,6 +117,8 @@ export const removeUser = async (id: string) => {
   }
 };
 
+export const updateUser = async (id: string, profile: UserObject) => {};
+
 const validateUser = (user: UserObject): { err: string | null } => {
   //TODO validate user
   return { err: null };

@@ -75,7 +75,9 @@ export default class UserRepo {
       return await this.UserDb()
         .join("sessions", "users.id", "sessions.user_id")
         .where("sessions.sessionId", token)
-        .select("*");
+        .select(
+          "users.id,users.phoneNumber,users.userName,users.profilePic,users.email,users.whatsappNumber,users.firstName,users.lastName,users.middleName"
+        );
     } catch (err: any) {
       throw new CustomDatabaseError(err.message);
     }

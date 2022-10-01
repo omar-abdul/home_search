@@ -53,7 +53,7 @@ export const getHomeById = async (id: string) => {
     throw error;
   }
 };
-export const getAllHomes = async (opts: object) => {
+export const getAllHomes = async (opts: object = {}) => {
   try {
     const homes = await homeRepo.getAllHomes(opts);
     return responseObject({ data: homes, err: null });
