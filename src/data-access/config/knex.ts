@@ -1,6 +1,6 @@
 import knex from "knex";
 import dotenv from "dotenv";
-import { convertToCamelCase, convertToSnakeCase } from "../../util/util";
+import { convertToCamelCase, convertToSnakeCase } from "@lib/util";
 dotenv.config();
 const con = process.env.DB_CONN_STRING;
 const config = {

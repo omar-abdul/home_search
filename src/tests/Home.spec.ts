@@ -41,6 +41,8 @@ describe("Homes/Listing Controller", () => {
       userId: "",
       isPaid: false,
       status: Status.Active,
+      lon: 0,
+      lat: 0,
     };
   });
   describe("Adding a new listing", () => {

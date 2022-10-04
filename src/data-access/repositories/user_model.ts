@@ -1,7 +1,7 @@
 /* Interfaces and User/Session Objects */
 
 import { BinaryLike } from "crypto";
-import { CustomDatabaseError } from "../../util/customerrors";
+import { CustomDatabaseError } from "../../lib/customerrors";
 
 export interface User {
   id?: string;

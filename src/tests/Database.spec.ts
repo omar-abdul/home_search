@@ -4,8 +4,8 @@ import chaiAsPromised from "chai-as-promised";
 
 import db from "../data-access/config/db";
 import mig from "../data-access/migrations/home_migrations";
-import { CustomDatabaseError, LoginFailureError } from "../util/customerrors";
-import { tableExists } from "../util/util";
+import { CustomDatabaseError, LoginFailureError } from "../lib/customerrors";
+import { tableExists } from "../lib/util";
 import * as userController from "../controller/user_controller";
 import * as homeController from "../controller/home_controller";
 import { UserObject } from "../data-access/repositories/user_model";
@@ -82,6 +82,8 @@ describe("Throwing Database Errors on homes", () => {
       userId: "",
       isPaid: false,
       status: undefined,
+      lon: 0,
+      lat: 0,
     };
     return expect(homeController.addHome(homeObj)).to.be.rejectedWith(
       CustomDatabaseError

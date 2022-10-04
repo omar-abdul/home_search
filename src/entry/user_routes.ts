@@ -2,7 +2,7 @@ import express, { NextFunction, Request, Response } from "express";
 import { loginHandler, updateUser } from "../controller/user_controller";
 import { passport } from "../data-access/config/passport";
 import { UserObject } from "../data-access/repositories/user_model";
-
+import { logger } from "@lib/logger";
 const router = express.Router();
 
 router.post("/login", async (req, res, next) => {
@@ -13,6 +13,7 @@ router.post("/login", async (req, res, next) => {
 
     if (err) throw err; //res.json({ err: err.message }).status(err.statusCode);
     else res.json({ data });
+    logger.info(`User with session_id ${data} logged in`);
   } catch (error) {
     next(error);
   }
@@ -30,6 +31,7 @@ router.post(
       }
       const result = await updateUser(user!.id, profileData!);
       res.json(result).status(200);
+      logger.info(`User with id ${result} updated`);
     } catch (error) {
       next(error);
     }

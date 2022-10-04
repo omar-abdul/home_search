@@ -1,16 +1,25 @@
 import { Knex } from "knex";
-import { CustomDatabaseError } from "../../util/customerrors";
+import { CustomDatabaseError } from "../../lib/customerrors";
 import { HomeObject } from "./home_model";
+import knexPostGis, { KnexPostgis } from "knex-postgis";
 
 export default class HomeRepo {
   private HomeDb;
+  private st: KnexPostgis;
   constructor(knex: Knex) {
     this.HomeDb = () =>
       knex<HomeObject>("homes").queryContext("crud_functions");
+    this.st = knexPostGis(knex);
   }
   async addHome(home: HomeObject) {
     try {
-      return await this.HomeDb().insert(home).returning("id");
+      const newHome = (({ lon, lat, ...obj }) => obj)(home);
+
+      newHome.coordinates = this.st.geomFromText(
+        `Point(${home.lon} ${home.lat})`,
+        4326
+      );
+      return await this.HomeDb().insert(newHome).returning("id");
     } catch (error: any) {
       throw new CustomDatabaseError(error.message);
     }

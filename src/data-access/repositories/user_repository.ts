@@ -1,5 +1,5 @@
 import { Knex } from "knex";
-import { CustomDatabaseError } from "../../util/customerrors";
+import { CustomDatabaseError } from "../../lib/customerrors";
 import { UserObject, SessionObject } from "./user_model";
 
 export default class UserRepo {

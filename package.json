@@ -4,7 +4,7 @@
   "description": "Search for houses in somalia/somaliland",
   "main": "app.js",
   "scripts": {
-    "test": "mocha --require ts-node/register src/tests/**/*.spec.ts",
+    "test": "mocha --require ts-node/register -r tsconfig-paths/register src/tests/**/*.spec.ts",
     "build": "npx tsc --watch",
     "serve": "npx nodemon dist/app.js",
     "dev": "concurrently  -r \"npm:build\" \"npm:serve\"",
@@ -20,10 +20,10 @@
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
     "knex": "^2.2.0",
+    "knex-postgis": "^0.14.3",
     "passport": "^0.6.0",
     "passport-http-bearer": "^1.0.1",
     "pg": "^8.7.3",
-    "ts-node": "^10.9.1",
     "uuid": "^8.3.2",
     "validatorjs": "^3.22.1",
     "winston": "^3.8.1"
@@ -42,6 +42,8 @@
     "mocha": "^10.0.0",
     "nodemon": "^2.0.19",
     "nyc": "^15.1.0",
+    "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.1.0",
     "typescript": "^4.7.4"
   }
 }

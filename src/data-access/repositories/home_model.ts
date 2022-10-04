@@ -1,3 +1,5 @@
+import { Knex } from "knex";
+
 export enum Locations {
   Laascanod = "Laascanod",
   Burco = "Burco",
@@ -19,7 +21,7 @@ export enum Status {
 
 export interface HomeObject {
   id: string;
-  uuid?: string;
+  home_id?: string;
   type: ListingType;
   location: Locations;
   description: string;
@@ -27,7 +29,9 @@ export interface HomeObject {
   price: number;
   userId: string;
   isPaid: boolean;
-  geometry?: any;
+  lon: number;
+  lat: number;
+  coordinates?: Knex.Raw;
   status?: Status;
 }
 

@@ -7,6 +7,7 @@ import {
 } from "../controller/home_controller";
 import { HomeObject } from "../data-access/repositories/home_model";
 import { UserObject } from "../data-access/repositories/user_model";
+import { logger } from "@lib/logger";
 const router = express.Router();
 
 router.post(
@@ -23,6 +24,7 @@ router.post(
         //res.json({ success: false, err: err.message }).status(err.statusCode);
         throw err;
       res.json({ data });
+      logger.info(`Home with uuid ${home.home_id} was added`);
     } catch (error) {
       next(error);
     }

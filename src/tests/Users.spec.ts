@@ -1,7 +1,7 @@
 import chai, { assert } from "chai";
 import * as userController from "../controller/user_controller";
 import { UserObject } from "../data-access/repositories/user_model";
-import { CustomDatabaseError, LoginFailureError } from "../util/customerrors";
+import { CustomDatabaseError, LoginFailureError } from "../lib/customerrors";
 import chaiAsPromised from "chai-as-promised";
 
 const expect = chai.expect;

@@ -5,8 +5,8 @@ import {
   HomeObject,
   Status,
 } from "../data-access/repositories/home_model";
-import { getCryptoRandomId, responseObject } from "../util/util";
-import { ResourceNotFoundError, ValidationError } from "../util/customerrors";
+import { getCryptoRandomId, responseObject } from "../lib/util";
+import { ResourceNotFoundError, ValidationError } from "../lib/customerrors";
 
 const homeRepo: HomeModel = new HomeRepo(db);
 

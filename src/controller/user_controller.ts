@@ -9,12 +9,12 @@ import crypto, { BinaryLike } from "crypto";
 import db from "../data-access/config/db";
 import UserRepo from "../data-access/repositories/user_repository";
 import { UserModel, UserObject } from "../data-access/repositories/user_model";
-import { genRandomId, getCryptoRandomId, responseObject } from "../util/util";
+import { genRandomId, getCryptoRandomId, responseObject } from "../lib/util";
 import {
   LoginFailureError,
   ResourceNotFoundError,
   ValidationError,
-} from "../util/customerrors";
+} from "@lib/customerrors";
 
 const userRepo: UserModel = new UserRepo(db);
 
