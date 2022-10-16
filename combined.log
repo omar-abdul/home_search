@@ -1,0 +1,4 @@
+{"level":"info","message":"Server has started successfull [object Object]"}
+{"level":"error","message":"App received SIGINT event, Closing the server...."}
+{"level":"info","message":"Server has started successfully on [ { address: '::', family: 'IPv6', port: 8080 }, [length]: 1 ],"}
+{"level":"error","message":"App received SIGINT event, Closing the server...."}

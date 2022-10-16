@@ -16,7 +16,7 @@ chai.use(chaiAsPromised);
 
 describe("Database  Migrations", () => {
   describe("Down", () => {
-    it("Check Down", async () => {
+    it("Will destory all tables in the database", async () => {
       return mig.down(db).then(async () => {
         const homeExists = await tableExists(db, "homes");
         const usersExist = await tableExists(db, "users");
@@ -26,7 +26,7 @@ describe("Database  Migrations", () => {
     });
   });
   describe("Check Up", () => {
-    it("Up", async () => {
+    it("Creates all the tables from the migration file", async () => {
       return mig.up(db).then(async () => {
         const userExists = await tableExists(db, "users");
         const homeExists = await tableExists(db, "homes");
@@ -37,8 +37,8 @@ describe("Database  Migrations", () => {
   });
 });
 
-describe("Throwing Database Error on user", () => {
-  it("*****Should throw a CustomDatabaseError when adding user", async () => {
+describe("Database Error on user", () => {
+  it("*****Should throw a CustomDatabaseError when adding a duplicate user", async () => {
     const data: UserObject = {
       id: "test",
       phoneNumber: 5444,
@@ -71,7 +71,7 @@ describe("Throwing Database Error on user", () => {
 });
 
 describe("Throwing Database Errors on homes", () => {
-  it("*****Should throw a CustomDatabaseError when adding a listing", async () => {
+  it("*****Should throw a CustomDatabaseError when adding a listing without a userId", async () => {
     const homeObj = {
       id: "undefined",
       location: Locations.Burco,

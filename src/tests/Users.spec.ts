@@ -42,7 +42,7 @@ describe("User Functions", () => {
     expect(signIn?.data).to.be.a("string");
     expect(signIn?.err).to.be.null;
   });
-  it("*****Should fail to login", async () => {
+  it("*****Should fail to login when invalid credentials are passed", async () => {
     const user = {
       phoneNumber: 5444,
       password: "33333",
@@ -52,7 +52,7 @@ describe("User Functions", () => {
     expect(data).to.be.null;
   });
 
-  it("*****Get User ", async () => {
+  it("*****Should get user by ID ", async () => {
     const user = await userController.getUserById(user_id);
     expect(user.data).to.be.an("object");
     expect(user.data.id).to.be.a("string");
@@ -67,12 +67,12 @@ describe("User Functions", () => {
       "User Id not equal to token user_id"
     );
   });
-  it("*****deactivate user", async () => {
+  it("*****Should deactivate a user", async () => {
     const user = await userController.deactivateUser(user_id);
     expect(user.data).to.be.a("string");
     // expect(user.success).to.be.true;
   });
-  it("*****Delete user", async () => {
+  it("*****Should Delete user", async () => {
     const del = await userController.removeUser(user_id);
     // expect(del?.success).to.be.true;
     expect(del?.data).to.be.a("string");
