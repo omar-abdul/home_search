@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  app:
+    image: node:16-alpine
+    command: sh -c "npm i && npm run knex:mig && npm run start-dev"
+    ports:
+      - 8080:8080
+    working_dir: /GuriRaadi
+    volumes: 
+      - ./:/GuriRaadi
+    environment:
+      PG_USER : postgres
+      PG_DATABASE: home_search
+      PG_PASSWORD: mypass
+      PG_HOST: postgresdb
+
+  postgresdb:
+    image: postgres:15
+    volumes:
+      - guri-raadi-data:/var/lib/postgres
+    environment:
+      POSTGRES_DB: home_search
+      POSTGRES_PASSWORD: mypass
+
+volumes:
+  guri-raadi-data:

@@ -41,5 +41,5 @@ export interface HomeModel {
   getAllHomes(opts: object): Promise<HomeObject[]>;
   getHomebyID(uuid: string): Promise<HomeObject[]>;
   changeHomeStatus(status: string, id: string): Promise<number>;
-  updateNearbyLocations():Promise<number>;
+ // updateNearbyLocations():Promise<number>;
 }

@@ -33,4 +33,7 @@ router.post(
 
   }
 );
+router.get('/',(req,res,next)=>{
+  res.send('heegg');
+})
 export default router;

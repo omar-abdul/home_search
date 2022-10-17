@@ -52,4 +52,7 @@ export default class HomeRepo {
       throw new CustomDatabaseError(error.message);
     }
   }
+  // async updateNearbyLocations(){
+
+  // }
 }

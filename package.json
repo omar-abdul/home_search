@@ -9,8 +9,9 @@
     "serve": "npx nodemon dist/app.js",
     "dev": "concurrently  -r \"npm:build\" \"npm:serve\"",
     "start": "node dist/app.js",
-    "start-dev": "ts-node -r tsconfig-paths/register app.ts",
-    "coverage": "nyc npm run test"
+    "start-dev": "nodemon --legacy-watch -r tsconfig-paths/register app.ts",
+    "coverage": "nyc npm run test",
+    "knex:mig":"knex --knexfile src/data-access/config/knex.ts  migrate:latest "
   },
   "author": "Omz",
   "license": "MIT",
