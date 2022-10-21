@@ -1,24 +1,31 @@
 import { Knex } from "knex";
-import { CustomDatabaseError } from "../../lib/customerrors";
-import { HomeObject } from "./home_model";
 import knexPostGis, { KnexPostgis } from "knex-postgis";
+import db from "../config/db";
+import { CustomDatabaseError } from "@lib/customerrors";
+import { HomeObject } from "./home_model";
 
 export default class HomeRepo {
   private HomeDb;
   private st: KnexPostgis;
-  constructor(knex: Knex) {
+  private knex: Knex;
+  constructor() {
+    this.knex = db;
     this.HomeDb = () =>
-      knex<HomeObject>("homes").queryContext("crud_functions");
-    this.st = knexPostGis(knex);
+      this.knex<HomeObject>("homes").queryContext("crud_functions");
+    this.st = knexPostGis(this.knex);
   }
   async addHome(home: HomeObject) {
     try {
-      const newHome = (({ lon, lat, ...obj }) => obj)(home);
+      const newHome = (({ lon, lat, ...obj }) => obj)(home); // creating a newHome object from existing home obj to create coordinates
+      const { lon, lat } = home;
+      if (!this.validateLonLat(lon, lat))
+        throw new Error("Invalid Longtitude & Latitude values");
 
       newHome.coordinates = this.st.geomFromText(
         `Point(${home.lon} ${home.lat})`,
         4326
       );
+
       return await this.HomeDb().insert(newHome).returning("id");
     } catch (error: any) {
       throw new CustomDatabaseError(error.message);
@@ -52,7 +59,7 @@ export default class HomeRepo {
       throw new CustomDatabaseError(error.message);
     }
   }
-  // async updateNearbyLocations(){
-
-  // }
+  validateLonLat(lon: number, lat: number) {
+    return lon <= 180 && lon >= -180 && lat <= 90 && lat >= -90;
+  }
 }

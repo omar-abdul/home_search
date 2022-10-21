@@ -16,18 +16,18 @@ import {
   ValidationError,
 } from "@lib/customerrors";
 
-const userRepo: UserModel = new UserRepo(db);
+const userRepo: UserModel = new UserRepo();
 
 export const addUser = async (user: UserObject) => {
   try {
     const isValidUser = validateUser(user);
     let res: Pick<UserObject, "id">[];
-    if (isValidUser.err !== null) {
-      return responseObject({
-        err: new ValidationError(isValidUser.err),
-        data: null,
-      });
-    }
+    // if (isValidUser.err !== null) {
+    //   return responseObject({
+    //     err: new ValidationError(isValidUser.err),
+    //     data: null,
+    //   });
+    // }
     let { salt } = user;
 
     salt = getCryptoRandomId(16);
@@ -40,8 +40,8 @@ export const addUser = async (user: UserObject) => {
     res = await userRepo.addUser(user);
 
     return responseObject({ data: res[0].id, err: null });
-  } catch (e) {
-    throw e;
+  } catch (err) {
+    return responseObject({ err, data: null });
   }
 };
 export const loginHandler = async ({
@@ -72,8 +72,8 @@ export const loginHandler = async ({
     const result = await userRepo.addUserSession(id, token);
 
     return responseObject({ err: null, data: result[0].sessionId });
-  } catch (error) {
-    throw error;
+  } catch (err) {
+    return responseObject({ err, data: null });
   }
 };
 
@@ -84,8 +84,8 @@ export const getUserById = async (id: string) => {
       return responseObject({ err: new ResourceNotFoundError(), data: null });
 
     return responseObject({ err: null, data: user[0] });
-  } catch (error) {
-    throw error;
+  } catch (err) {
+    return responseObject({ err, data: null });
   }
 };
 export const getUserFromSessionId = async (token: string) => {
@@ -94,8 +94,8 @@ export const getUserFromSessionId = async (token: string) => {
     if (user.length === 0)
       return responseObject({ err: new ResourceNotFoundError(), data: null });
     return responseObject({ err: null, data: user[0] });
-  } catch (error) {
-    throw error;
+  } catch (err) {
+    return responseObject({ err, data: null });
   }
 };
 export const deactivateUser = async (id: string) => {
@@ -104,16 +104,16 @@ export const deactivateUser = async (id: string) => {
     if (user.length === 0) throw new ResourceNotFoundError();
     const delSessions = await userRepo.deleteAllUserSessions(user[0]?.id);
     return responseObject({ data: "Sessions deleted successful", err: null });
-  } catch (error) {
-    throw error;
+  } catch (err) {
+    return responseObject({ err, data: null });
   }
 };
 export const removeUser = async (id: string) => {
   try {
     const deleted = await userRepo.delUser(id);
     return responseObject({ data: "User successfully deleted", err: null });
-  } catch (error) {
-    throw error;
+  } catch (err) {
+    return responseObject({ err, data: null });
   }
 };
 

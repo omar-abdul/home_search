@@ -34,6 +34,6 @@ router.post(
   }
 );
 router.get('/',(req,res,next)=>{
-  res.send('heegg');
+  res.send('this is freaking working');
 })
 export default router;

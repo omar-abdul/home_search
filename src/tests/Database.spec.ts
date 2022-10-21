@@ -39,7 +39,7 @@ describe("Database  Migrations", () => {
 
 describe("Database Error on user", () => {
   it("*****Should throw a CustomDatabaseError when adding a duplicate user", async () => {
-    const data: UserObject = {
+    const original: UserObject = {
       id: "test",
       phoneNumber: 5444,
       whatsappNumber: 5444,
@@ -63,10 +63,10 @@ describe("Database Error on user", () => {
       active: true,
       salt: "",
     };
-    await userController.addUser(data);
-    return expect(userController.addUser(data)).to.be.rejectedWith(
-      CustomDatabaseError
-    );
+    await userController.addUser(original);
+    const { data, err } = await userController.addUser(duplicate);
+
+    expect(err).to.be.instanceOf(CustomDatabaseError);
   });
 });
 
@@ -85,8 +85,7 @@ describe("Throwing Database Errors on homes", () => {
       lon: 0,
       lat: 0,
     };
-    return expect(homeController.addHome(homeObj)).to.be.rejectedWith(
-      CustomDatabaseError
-    );
+    const { data, err } = await homeController.addHome(homeObj);
+    expect(err).to.be.instanceOf(CustomDatabaseError);
   });
 });

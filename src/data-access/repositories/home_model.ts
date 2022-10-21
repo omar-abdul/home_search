@@ -16,7 +16,7 @@ export enum Status {
   Inactive = "inactive",
   PP = "pending payment",
   NA = "not available",
-  Sold = "Sold",
+  Sold = "sold",
 }
 
 export interface HomeObject {

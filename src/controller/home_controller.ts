@@ -1,14 +1,13 @@
-import db from "../data-access/config/db";
 import HomeRepo from "../data-access/repositories/home_repository";
 import {
   HomeModel,
   HomeObject,
   Status,
 } from "../data-access/repositories/home_model";
-import { getCryptoRandomId, responseObject } from "../lib/util";
-import { ResourceNotFoundError, ValidationError } from "../lib/customerrors";
+import { getCryptoRandomId, responseObject } from "@lib/util";
+import { ResourceNotFoundError, ValidationError } from "@lib/customerrors";
 
-const homeRepo: HomeModel = new HomeRepo(db);
+const homeRepo: HomeModel = new HomeRepo();
 
 export const addHome = async (home: HomeObject) => {
   try {
@@ -26,8 +25,8 @@ export const addHome = async (home: HomeObject) => {
         data: null,
       });
     return responseObject({ data: homeId[0].id, err: null });
-  } catch (error) {
-    throw error;
+  } catch (err) {
+    return responseObject({ err, data: null });
   }
 };
 export const deactivateHome = async (id: string) => {
@@ -36,8 +35,8 @@ export const deactivateHome = async (id: string) => {
     return updated > 0
       ? responseObject({ err: null, data: "Home status updated" })
       : responseObject({ err: new ResourceNotFoundError(), data: null });
-  } catch (error) {
-    throw error;
+  } catch (err) {
+    return responseObject({ err, data: null });
   }
 };
 export const getHomeById = async (id: string) => {
@@ -49,16 +48,16 @@ export const getHomeById = async (id: string) => {
         data: null,
       });
     return responseObject({ data: home[0] });
-  } catch (error) {
-    throw error;
+  } catch (err) {
+    return responseObject({ err, data: null });
   }
 };
 export const getAllHomes = async (opts: object = {}) => {
   try {
     const homes = await homeRepo.getAllHomes(opts);
     return responseObject({ data: homes, err: null });
-  } catch (error) {
-    throw error;
+  } catch (err) {
+    return responseObject({ err, data: null });
   }
 };
 

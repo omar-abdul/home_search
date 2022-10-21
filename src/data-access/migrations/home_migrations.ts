@@ -15,8 +15,8 @@ export = {
   down: async (db: Knex) => {
     return await db.schema
       .dropTableIfExists("payments")
-      .dropTableIfExists("homes_nearby_locations")
-      .dropTableIfExists("nearby_locations")
+      .dropTableIfExists("homes_nearby_places")
+      .dropTableIfExists("places")
       .dropTableIfExists("sessions")
       .dropTableIfExists("homes")
       .dropTableIfExists("users");
@@ -86,12 +86,12 @@ async function CreateTables(db: Knex) {
       table.dateTime("created_at").defaultTo(db.fn.now(6));
       table.boolean("is_revoked").notNullable();
     })
-    .createTable("nearby_locations", (table) => {
+    .createTable("places", (table) => {
       table.increments("id").primary();
       table.string("name");
       table.geometry("coordinates").notNullable();
     })
-    .createTable("homes_nearby_locations", (table) => {
+    .createTable("homes_nearby_places", (table) => {
       table.increments("id").primary();
       table
         .uuid("home_id")
@@ -102,7 +102,7 @@ async function CreateTables(db: Knex) {
       table
         .integer("location_id")
         .references("id")
-        .inTable("nearby_locations")
+        .inTable("places")
         .onDelete("Cascade")
         .onUpdate("Cascade");
       table.decimal("distance");

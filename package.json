@@ -5,13 +5,14 @@
   "main": "app.js",
   "scripts": {
     "test": "mocha --require ts-node/register -r tsconfig-paths/register src/tests/**/*.spec.ts",
-    "build": "npx tsc --watch",
-    "serve": "npx nodemon dist/app.js",
-    "dev": "concurrently  -r \"npm:build\" \"npm:serve\"",
+    "build": "tsc --watch",
+    "serve": "nodemon dist/app.js",
     "start": "node dist/app.js",
     "start-dev": "nodemon --legacy-watch -r tsconfig-paths/register app.ts",
     "coverage": "nyc npm run test",
-    "knex:mig":"knex --knexfile src/data-access/config/knex.ts  migrate:latest "
+    "knex:up": "knex --knexfile src/data-access/config/knex.ts  migrate:latest ",
+    "knex:down": "knex --knexfile src/data-access/config/knex.ts  migrate:down"
+
   },
   "author": "Omz",
   "license": "MIT",
@@ -24,9 +25,12 @@
     "joi": "^17.6.2",
     "knex": "^2.2.0",
     "knex-postgis": "^0.14.3",
+    "npm": "^8.19.2",
     "passport": "^0.6.0",
     "passport-http-bearer": "^1.0.1",
     "pg": "^8.7.3",
+    "run": "^1.4.0",
+    "start-dev": "^1.0.0",
     "uuid": "^8.3.2",
     "validatorjs": "^3.22.1",
     "winston": "^3.8.1"

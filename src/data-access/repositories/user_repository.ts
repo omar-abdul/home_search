@@ -1,15 +1,18 @@
 import { Knex } from "knex";
+import db from "../config/db";
 import { CustomDatabaseError } from "../../lib/customerrors";
 import { UserObject, SessionObject } from "./user_model";
 
 export default class UserRepo {
   private UserDb;
   private sessionDb;
-  constructor(knex: Knex) {
+  private knex: Knex;
+  constructor() {
+    this.knex = db;
     this.UserDb = () =>
-      knex<UserObject>("users").queryContext("crud_functions");
+      this.knex<UserObject>("users").queryContext("crud_functions");
     this.sessionDb = () =>
-      knex<SessionObject>("sessions").queryContext("crud_functions");
+      this.knex<SessionObject>("sessions").queryContext("crud_functions");
   }
   async addUser(user: UserObject) {
     try {
@@ -73,10 +76,19 @@ export default class UserRepo {
   async getUserFromSessionId(token: string) {
     try {
       return await this.UserDb()
+        .from("users")
         .join("sessions", "users.id", "sessions.user_id")
         .where("sessions.sessionId", token)
         .select(
-          "users.id,users.phoneNumber,users.userName,users.profilePic,users.email,users.whatsappNumber,users.firstName,users.lastName,users.middleName"
+          "users.id",
+          "users.phoneNumber",
+          "users.userName",
+          "users.profilePic",
+          "users.email",
+          "users.whatsappNumber",
+          "users.firstName",
+          "users.lastName",
+          "users.middleName"
         );
     } catch (err: any) {
       throw new CustomDatabaseError(err.message);

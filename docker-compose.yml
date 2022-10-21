@@ -1,9 +1,19 @@
 version: '3.8'
 
 services:
+  postgresdb:
+    build: .
+    volumes:
+      - guri-raadi-data:/var/lib/postgresql/data
+      - ~/allback:/backups
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_PASSWORD: mypass
+
   app:
     image: node:16-alpine
-    command: sh -c "npm i && npm run knex:mig && npm run start-dev"
+    command: sh -c "npm i && npm run start-dev"
     ports:
       - 8080:8080
     working_dir: /GuriRaadi
@@ -14,14 +24,7 @@ services:
       PG_DATABASE: home_search
       PG_PASSWORD: mypass
       PG_HOST: postgresdb
-
-  postgresdb:
-    image: postgres:15
-    volumes:
-      - guri-raadi-data:/var/lib/postgres
-    environment:
-      POSTGRES_DB: home_search
-      POSTGRES_PASSWORD: mypass
-
+    depends_on:
+      - postgresdb
 volumes:
   guri-raadi-data:

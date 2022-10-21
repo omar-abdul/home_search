@@ -7,13 +7,12 @@ import mig from "./src/data-access/migrations/home_migrations";
 async function start() {
   return Promise.all([startWebServer()]);
 }
-async function initDb(){
+async function initDb() {
   return Promise.resolve(mig.up);
 }
 start()
   .then((connection) => {
-    
-    logger.info('Server has started successfully on sss %o,' ,connection);
+    logger.info("Server has started successfully on  %o,", connection);
   })
   .catch((error) => {
     errorHandler.handleError(error);
