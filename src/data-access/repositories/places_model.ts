@@ -7,11 +7,18 @@ export interface Places {
   lon: number;
   coordinates?: Knex.Raw;
 }
+export interface NearbyPlace {
+  id: number;
+  homeId: string;
+  locationId: number;
+  distance: number;
+}
 
 export interface PlaceModel {
   addPlace(place: Places): Promise<number[]>;
   //   updatePlace(id: number): Promise<Pick<PlaceObject, "id">[]>;
-  //   getAllPlaces(): Promise<PlaceObject>;
-  //   getPlace(id: number): Promise<PlaceObject>;
+  getAllPlacesWith(opts: object): Promise<Places[]>;
+  getPlace(id: number): Promise<Places[]>;
   //   removePlace(id: number): Promise<number[]>;
+  updateProximityPlace(id: number): Promise<number[] | undefined>;
 }

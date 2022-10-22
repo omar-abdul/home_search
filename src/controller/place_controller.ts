@@ -11,3 +11,24 @@ export const addPlace = async (place: Places) => {
     .then(() => responseObject({ data: "Success", err: null }))
     .catch((err) => responseObject({ data: null, err }));
 };
+
+export const getAllPlaces = async (opts: object) => {
+  return placeRepo
+    .getAllPlacesWith(opts)
+    .then((data) => responseObject({ data, err: null }))
+    .catch((err) => responseObject({ data: null, err }));
+};
+
+export const updateProximityOfPlace = async (id: number) => {
+  return placeRepo
+    .updateProximityPlace(id)
+    .then(() => responseObject({ data: "success" }))
+    .catch((err) => responseObject({ err }));
+};
+
+export const getPlace = async (id: number) => {
+  return placeRepo
+    .getPlace(id)
+    .then((data) => responseObject({ data }))
+    .catch((err) => responseObject({ err }));
+};

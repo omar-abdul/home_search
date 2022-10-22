@@ -9,7 +9,7 @@ services:
     ports:
       - '5432:5432'
     environment:
-      POSTGRES_PASSWORD: mypass
+      POSTGRES_PASSWORD: $PG_PASSWORD
 
   app:
     image: node:16-alpine
@@ -19,11 +19,6 @@ services:
     working_dir: /GuriRaadi
     volumes: 
       - ./:/GuriRaadi
-    environment:
-      PG_USER : postgres
-      PG_DATABASE: home_search
-      PG_PASSWORD: mypass
-      PG_HOST: postgresdb
     depends_on:
       - postgresdb
 volumes:
