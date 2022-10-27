@@ -40,6 +40,6 @@ export interface HomeModel {
   removeHome(uuid: string): Promise<number>;
   getAllHomes(opts: object): Promise<HomeObject[]>;
   getHomebyID(uuid: string): Promise<HomeObject[]>;
-  changeHomeStatus(status: string, id: string): Promise<number>;
- // updateNearbyLocations():Promise<number>;
+  changeHomeStatus(status: object, id: string): Promise<number>;
+  // updateNearbyLocations():Promise<number>;
 }

@@ -24,14 +24,22 @@ export const addHome = async (home: HomeObject) => {
         err: new ResourceNotFoundError(),
         data: null,
       });
-    return responseObject({ data: homeId[0].id, err: null });
+    return responseObject({ data: homeId[0], err: null });
   } catch (err) {
     return responseObject({ err, data: null });
   }
 };
 export const deactivateHome = async (id: string) => {
   try {
-    const updated = await homeRepo.changeHomeStatus(Status.Inactive, id);
+    if (id === null || id === undefined || id === "")
+      return responseObject({
+        err: new ValidationError("Id cannot be blank or undefined"),
+        data: null,
+      });
+
+    const infoToUpdate = { status: Status.Inactive };
+    const updated = await homeRepo.changeHomeStatus(infoToUpdate, id);
+
     return updated > 0
       ? responseObject({ err: null, data: "Home status updated" })
       : responseObject({ err: new ResourceNotFoundError(), data: null });
@@ -42,12 +50,12 @@ export const deactivateHome = async (id: string) => {
 export const getHomeById = async (id: string) => {
   try {
     const home = await homeRepo.getHomebyID(id);
-    if (home === undefined || home === null)
+    if (home === undefined || home === null || home.length < 1)
       return responseObject({
         err: new ResourceNotFoundError(),
         data: null,
       });
-    return responseObject({ data: home[0] });
+    return responseObject({ data: home });
   } catch (err) {
     return responseObject({ err, data: null });
   }
@@ -64,5 +72,11 @@ export const getAllHomes = async (opts: object = {}) => {
 const validateHomeObj = function (home: any): { err: string | null } {
   //TODO Add more validations
   //return "type" in home && (home.type === "Rent" || home.type === "Sale");
-  return { err: "" };
+  if (
+    home?.userId === null ||
+    home?.userId === undefined ||
+    home?.userId === ""
+  )
+    return { err: "User id cannot be blank" };
+  return { err: null };
 };

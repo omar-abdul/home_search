@@ -10,7 +10,7 @@ export const convertToCamelCase = function (str: any) {
         letters.toUpperCase().replace("_", "")
       );
     return Object.fromEntries(
-      Object.entries(str).map(([k, v], i) => [replace(k), v])
+      Object.entries(str).map(([k, v]) => [replace(k), v])
     );
   }
 };

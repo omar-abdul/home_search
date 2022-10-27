@@ -52,9 +52,9 @@ export default class HomeRepo {
       throw new CustomDatabaseError(error.message);
     }
   }
-  async changeHomeStatus(status: string, id: string) {
+  async changeHomeStatus(statusobj: object, id: string) {
     try {
-      return await this.HomeDb().where("id", id).update("price", 5);
+      return await this.HomeDb().where("id", id).update(statusobj);
     } catch (error: any) {
       throw new CustomDatabaseError(error.message);
     }
