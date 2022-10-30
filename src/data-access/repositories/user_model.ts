@@ -1,6 +1,6 @@
 /* Interfaces and User/Session Objects */
 
-
+import { userPartialSchema, idValidate } from "./validate_schema";
 
 export interface User {
   id?: string;
@@ -14,6 +14,7 @@ export interface User {
   password: string;
   salt: string;
   active?: boolean;
+  repeatPassword?: string;
 }
 interface Session {
   sessionId: string;
@@ -40,4 +41,12 @@ export interface UserModel {
   getUserFromSessionId(token: string): Promise<any[]>;
   deactivateUser(id: string): Promise<Pick<UserObject, "id">[]>;
   deleteAllUserSessions(user_id: string): Promise<number>;
+  updateUser(id: string, userObj: Partial<UserObject>): Promise<number>;
 }
+
+export const validateUserObject = (obj: Partial<User>) => {
+  return userPartialSchema.validate(obj);
+};
+export const idvalidate = (id: string) => {
+  return idValidate.validate(id);
+};

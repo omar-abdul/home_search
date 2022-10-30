@@ -7,10 +7,9 @@ import db from "../config/db";
 export default class PlaceRepo {
   private placesDb;
   private st: KnexPostgis;
-  private knex: Knex;
+
   private nearbyPlaces;
-  constructor() {
-    this.knex = db;
+  constructor(private knex: Knex) {
     this.placesDb = () =>
       this.knex<Places>("places").queryContext("crud_functions");
     this.st = knexPostGis(this.knex);
@@ -70,7 +69,6 @@ export default class PlaceRepo {
         ...x,
         locationId: id,
       }));
-      const test: any[] = [];
       return await this.nearbyPlaces().insert(toInsert);
     }
   }

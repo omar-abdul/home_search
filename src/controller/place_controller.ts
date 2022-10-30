@@ -2,8 +2,9 @@ import PlaceRepo from "../data-access/repositories/places_repository";
 import { Places, PlaceModel } from "src/data-access/repositories/places_model";
 import { responseObject } from "@lib/util";
 import { ResourceNotFoundError } from "@lib/customerrors";
+import db from "src/data-access/config/db";
 
-const placeRepo: PlaceModel = new PlaceRepo();
+const placeRepo: PlaceModel = new PlaceRepo(db);
 
 export const addPlace = async (place: Places) => {
   return placeRepo

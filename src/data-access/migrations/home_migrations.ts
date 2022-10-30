@@ -75,6 +75,11 @@ async function CreateTables(db: Knex) {
       table.dateTime("created_at").defaultTo(db.fn.now());
       table.boolean("is_paid").notNullable();
     })
+    .createTable("home_images", (table) => {
+      table.increments("id").notNullable().primary();
+      table.uuid("home_id").references("home_id").inTable("homes");
+      table.string("image_link");
+    })
     .createTable("sessions", (table) => {
       table.string("session_id").primary();
       table
@@ -84,6 +89,9 @@ async function CreateTables(db: Knex) {
         .onDelete("Cascade")
         .onUpdate("Cascade");
       table.dateTime("created_at").defaultTo(db.fn.now(6));
+      table
+        .dateTime("expires_at")
+        .defaultTo(db.raw(`?+INTERVAL + '? day' `, [db.fn.now(6), 30]));
       table.boolean("is_revoked").notNullable();
     })
     .createTable("places", (table) => {

@@ -1,14 +1,19 @@
 import { Knex } from "knex";
 import db from "../config/db";
 import { CustomDatabaseError } from "../../lib/customerrors";
-import { UserObject, SessionObject } from "./user_model";
+import {
+  UserObject,
+  SessionObject,
+  validateUserObject,
+  idvalidate,
+} from "./user_model";
+import { UserSchema } from "./validate_schema";
 
 export default class UserRepo {
   private UserDb;
   private sessionDb;
-  private knex: Knex;
-  constructor() {
-    this.knex = db;
+  // private knex: Knex;
+  constructor(private knex: Knex) {
     this.UserDb = () =>
       this.knex<UserObject>("users").queryContext("crud_functions");
     this.sessionDb = () =>
@@ -16,6 +21,9 @@ export default class UserRepo {
   }
   async addUser(user: UserObject) {
     try {
+      const { error, value } = UserSchema.validate(user);
+      if (error) throw error;
+
       return await this.UserDb().insert(user).returning("id");
     } catch (error: any) {
       throw new CustomDatabaseError(error.message);
@@ -58,6 +66,8 @@ export default class UserRepo {
   }
   async delUser(id: string) {
     try {
+      this.valdiateId(id);
+
       return await this.UserDb().where("id", id).del();
     } catch (error: any) {
       throw new CustomDatabaseError(error.message);
@@ -79,6 +89,7 @@ export default class UserRepo {
         .from("users")
         .join("sessions", "users.id", "sessions.user_id")
         .where("sessions.sessionId", token)
+        .andWhere("sessions.isRevoked", false)
         .select(
           "users.id",
           "users.phoneNumber",
@@ -107,5 +118,27 @@ export default class UserRepo {
     } catch (error: any) {
       throw new CustomDatabaseError(error.message);
     }
+  }
+
+  async updateUser(id: string, userOb: Partial<UserObject>) {
+    try {
+      this.validateUserObject(userOb);
+      this.valdiateId(id);
+      return await this.UserDb().update(userOb).where("id", id);
+    } catch (err: any) {
+      throw new CustomDatabaseError(err.message);
+    }
+  }
+
+  private validateUserObject(object: Partial<UserObject>) {
+    const { error, value } = validateUserObject(object);
+    if (error) throw error;
+    return;
+  }
+  private valdiateId(id: string) {
+    const { error, value } = idvalidate(id);
+
+    if (error) throw error;
+    return;
   }
 }

@@ -6,8 +6,9 @@ import {
 } from "../data-access/repositories/home_model";
 import { getCryptoRandomId, responseObject } from "@lib/util";
 import { ResourceNotFoundError, ValidationError } from "@lib/customerrors";
+import db from "src/data-access/config/db";
 
-const homeRepo: HomeModel = new HomeRepo();
+const homeRepo: HomeModel = new HomeRepo(db);
 
 export const addHome = async (home: HomeObject) => {
   try {
@@ -32,17 +33,14 @@ export const addHome = async (home: HomeObject) => {
 export const deactivateHome = async (id: string) => {
   try {
     if (id === null || id === undefined || id === "")
-      return responseObject({
-        err: new ValidationError("Id cannot be blank or undefined"),
-        data: null,
-      });
+      throw new ValidationError("Id cannot be blank or undefined");
 
     const infoToUpdate = { status: Status.Inactive };
     const updated = await homeRepo.changeHomeStatus(infoToUpdate, id);
 
-    return updated > 0
-      ? responseObject({ err: null, data: "Home status updated" })
-      : responseObject({ err: new ResourceNotFoundError(), data: null });
+    if (updated > 0)
+      return responseObject({ err: null, data: "Home status updated" });
+    throw new ResourceNotFoundError();
   } catch (err) {
     return responseObject({ err, data: null });
   }

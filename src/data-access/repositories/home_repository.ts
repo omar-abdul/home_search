@@ -1,15 +1,14 @@
 import { Knex } from "knex";
 import knexPostGis, { KnexPostgis } from "knex-postgis";
 import db from "../config/db";
-import { CustomDatabaseError } from "@lib/customerrors";
+import { CustomDatabaseError, ValidationError } from "@lib/customerrors";
 import { HomeObject } from "./home_model";
 
 export default class HomeRepo {
   private HomeDb;
   private st: KnexPostgis;
-  private knex: Knex;
-  constructor() {
-    this.knex = db;
+
+  constructor(private knex: Knex) {
     this.HomeDb = () =>
       this.knex<HomeObject>("homes").queryContext("crud_functions");
     this.st = knexPostGis(this.knex);
@@ -19,7 +18,7 @@ export default class HomeRepo {
       const newHome = (({ lon, lat, ...obj }) => obj)(home); // creating a newHome object from existing home obj to create coordinates
       const { lon, lat } = home;
       if (!this.validateLonLat(lon, lat))
-        throw new Error("Invalid Longtitude & Latitude values");
+        throw new ValidationError("Invalid Longtitude & Latitude values");
 
       newHome.coordinates = this.st.geomFromText(
         `Point(${home.lon} ${home.lat})`,
@@ -59,7 +58,7 @@ export default class HomeRepo {
       throw new CustomDatabaseError(error.message);
     }
   }
-  validateLonLat(lon: number, lat: number) {
+  private validateLonLat(lon: number, lat: number) {
     return lon <= 180 && lon >= -180 && lat <= 90 && lat >= -90;
   }
 }

@@ -13,6 +13,19 @@
     "knex:up": "knex --knexfile src/data-access/config/knex.ts  migrate:latest ",
     "knex:down": "knex --knexfile src/data-access/config/knex.ts  migrate:down"
   },
+    "nyc": {
+    "extension": [
+      ".ts",
+      ".tsx"
+    ],
+    "exclude": [
+      "**/*.d.ts"
+    ],
+    "reporter": [
+      "html"
+    ]
+
+  },
   "author": "Omz",
   "license": "MIT",
   "dependencies": {

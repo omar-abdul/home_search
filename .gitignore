@@ -2,3 +2,5 @@ node_modules
 dist
 .env
 *.txt
+.nyc_output
+coverage

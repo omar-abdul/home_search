@@ -2,11 +2,17 @@ import chai, { assert } from "chai";
 import sinon from "sinon";
 import * as userController from "../../controller/user_controller";
 import { UserObject } from "../../data-access/repositories/user_model";
-import { CustomDatabaseError, LoginFailureError } from "@lib/customerrors";
+import {
+  CustomDatabaseError,
+  LoginFailureError,
+  ResourceNotFoundError,
+  UserInputError,
+  ValidationError,
+} from "@lib/customerrors";
 import chaiAsPromised from "chai-as-promised";
 import UserRepo from "src/data-access/repositories/user_repository";
 import crypto, { BinaryLike } from "crypto";
-import e from "express";
+
 const expect = chai.expect;
 chai.use(chaiAsPromised);
 
@@ -36,16 +42,19 @@ describe("User Functions", () => {
       const user_stub = sinon
         .stub(UserRepo.prototype, "addUser")
         .resolves([user]);
+      sinon.stub(UserRepo.prototype, "getUserByNumber").resolves([]);
       const { err, data } = await userController.addUser(user);
 
-      expect(data).to.be.a("string").to.not.be.empty;
+      expect(data).to.be.a("string").length.greaterThan(0);
+      expect(err).to.be.null;
     });
-    it("Should return CustomDatabaseError on duplicate user", async function () {
+    it("Should return UserInputError on duplicate user", async function () {
       const user_stub = sinon
-        .stub(UserRepo.prototype, "addUser")
-        .throws(() => new CustomDatabaseError("Phone Number already exists"));
+        .stub(UserRepo.prototype, "getUserByNumber")
+        .resolves([user]);
       const { err, data } = await userController.addUser(user);
-      expect(err).to.be.instanceOf(CustomDatabaseError);
+      expect(err).to.be.instanceOf(UserInputError);
+      expect(data).to.be.null;
     });
   });
 
@@ -105,10 +114,7 @@ describe("User Functions", () => {
       const user_stub = sinon
         .stub(UserRepo.prototype, "getUserByNumber")
         .resolves([]);
-      const session_stub = sinon
-        .stub(UserRepo.prototype, "addUserSession")
-        .resolves([{ sessionId: "fakesessionId" }]);
-      const { phoneNumber } = user;
+
       const { err, data } = await userController.loginHandler({
         phoneNumber: 2342,
         password: "somepassword",
@@ -116,6 +122,106 @@ describe("User Functions", () => {
 
       expect(err).to.be.an.instanceOf(LoginFailureError);
       expect(err?.message).length.to.be.greaterThan(0);
+      expect(data).to.be.null;
+    });
+  });
+
+  describe("User Sessions", function () {
+    it("Should get user object from sessionId", async function () {
+      const user_sess = sinon
+        .stub(UserRepo.prototype, "getUserFromSessionId")
+        .resolves([user]);
+      const { err, data } = await userController.getUserFromSessionId(
+        "fakesessionId"
+      );
+
+      expect(data).to.be.an("object");
+      expect(Object.keys(data)).length.to.be.greaterThan(0);
+      expect(user_sess.calledOnceWith("fakesessionId")).to.be.true;
+    });
+
+    it("Should throw a ResourceNotFoundError", async function () {
+      const user_sess = sinon
+        .stub(UserRepo.prototype, "getUserFromSessionId")
+        .resolves([]);
+      const { err, data } = await userController.getUserFromSessionId(
+        "fakesessId"
+      );
+      expect(data).to.be.null;
+      expect(err).to.be.instanceOf(ResourceNotFoundError);
+      expect(user_sess.calledOnceWith("fakesessId")).to.be.true;
+    });
+  });
+  describe("Deactivate User", function () {
+    it("Should deactivate the user and remove all active user sessions", async function () {
+      const user_sess = sinon
+        .stub(UserRepo.prototype, "deactivateUser")
+        .resolves([{ id: "fakeId" }]);
+      const del_stub = sinon
+        .stub(UserRepo.prototype, "deleteAllUserSessions")
+        .resolves(1);
+      const { err, data } = await userController.deactivateUser("fakeId");
+      expect(data).to.be.a("string");
+      expect(err).to.be.null;
+      expect(user_sess.calledOnceWith("fakeId")).to.be.true;
+      expect(del_stub.calledOnceWith("fakeId")).to.be.true;
+    });
+
+    it("Should throw ResourceNotFoundError ", async function () {
+      const user_sess = sinon
+        .stub(UserRepo.prototype, "deactivateUser")
+        .resolves([]);
+      const del_stub = sinon
+        .stub(UserRepo.prototype, "deleteAllUserSessions")
+        .resolves(0);
+      const { err, data } = await userController.deactivateUser("nonexFakeId");
+      expect(data).to.be.null;
+      expect(err).to.be.instanceOf(ResourceNotFoundError);
+      expect(user_sess.calledOnceWith("nonexFakeId")).to.be.true;
+      expect(del_stub.neverCalledWith("nonexFakeId")).to.be.true;
+    });
+  });
+
+  describe("Delete/Remove User", function () {
+    it("Should delete the user with id", async function () {
+      const user_sess = sinon.stub(UserRepo.prototype, "delUser").resolves(1);
+      const { err, data } = await userController.removeUser("fakeId");
+      expect(data).to.be.a("string");
+      expect(err).to.be.null;
+      expect(user_sess.called).to.be.true;
+    });
+    it("Should throw a ResourceNotFoundError", async function () {
+      // const user_sess = sinon.stub(UserRepo.prototype, "delUser").resolves(0);
+      const { err, data } = await userController.removeUser("");
+
+      expect(err).to.be.instanceOf(CustomDatabaseError);
+      //expect(user_sess.called).to.be.true;
+      expect(data).to.be.null;
+    });
+    it("Should throw ResourceNotFoundError when no rows are affected", async function () {
+      const user_sess = sinon.stub(UserRepo.prototype, "delUser").resolves(0);
+      const { err, data } = await userController.removeUser("nonexistentid");
+      expect(err).to.be.instanceOf(ResourceNotFoundError);
+      expect(data).to.be.null;
+    });
+  });
+  describe("Update user", function () {
+    it("Should update the user", async function () {
+      const user_stub = sinon
+        .stub(UserRepo.prototype, "updateUser")
+        .resolves(1);
+      const { err, data } = await userController.updateUser("fakeid", {
+        phoneNumber: 333,
+      });
+      expect(data).to.be.a("string");
+      expect(err).to.be.null;
+    });
+
+    it("Should throw a validation error", async function () {
+      const { err, data } = await userController.updateUser("fakeid", {
+        email: "incorrectemail",
+      });
+      expect(err).to.be.instanceOf(CustomDatabaseError);
       expect(data).to.be.null;
     });
   });
