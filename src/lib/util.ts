@@ -1,5 +1,6 @@
 import { Knex } from "knex";
 import crypto from "crypto";
+import { NextFunction } from "express";
 export const convertToSnakeCase = (str: string): string => {
   return str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
 };
@@ -42,4 +43,16 @@ export const responseObject = ({
   data?: any;
 }) => {
   return { err, data };
+};
+
+export const passErrorToNext = async (
+  fn: Promise<any>,
+  nextFn: NextFunction
+) => {
+  return Promise.resolve(fn)
+    .then((val) => {
+      if (val?.err && val?.err instanceof Error) throw val.err;
+      return val.data;
+    })
+    .catch(nextFn);
 };

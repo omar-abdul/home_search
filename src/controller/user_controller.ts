@@ -16,6 +16,7 @@ import {
   UserInputError,
   ValidationError,
 } from "@lib/customerrors";
+import { UserSchema } from "src/data-access/repositories/validate_schema";
 
 const userRepo: UserModel = new UserRepo(db);
 
@@ -23,7 +24,8 @@ export const addUser = async (user: UserObject) => {
   try {
     const isValidUser = validateUser(user);
     let res: Pick<UserObject, "id">[];
-
+    const { error, value } = UserSchema.validate(user);
+    if (error) throw error;
     let { salt } = user;
     const user_exists = await userRepo.getUserByNumber(user.phoneNumber);
     if (user_exists.length > 0)

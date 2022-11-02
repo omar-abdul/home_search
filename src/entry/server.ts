@@ -3,6 +3,7 @@ import { AddressInfo } from "net";
 import express from "express";
 import defaultRoutes from "../entry/routes";
 import { errorHandler } from "@lib/error_handler";
+import { CustomDatabaseError } from "@lib/customerrors";
 let connection: Server;
 
 async function startWebServer(): Promise<AddressInfo> {
@@ -40,25 +41,33 @@ async function stopWebServer() {
 function handleRouteErrors(expressApp: express.Application) {
   expressApp.use(
     async (
-     
       error: any,
       req: express.Request,
       res: express.Response,
       // Express requires next function in default error handlers
-     
+
       next: express.NextFunction
     ) => {
-      if (error && typeof error === 'object') {
+      if (error && typeof error === "object") {
         if (error.isTrusted === undefined || error.isTrusted === null) {
           error.isTrusted = true; // Error during a specific request is usually not fatal and should not lead to process exit
         }
       }
-     
+
       errorHandler.handleError(error);
 
-      res.status(error?.statusCode || 500).end();
+      res
+        .status(error?.statusCode || 500)
+        .json({
+          sucess: false,
+          err:
+            error instanceof CustomDatabaseError
+              ? "There was an internal error"
+              : error?.message,
+        })
+        .end();
     }
   );
 }
 
-export { startWebServer,stopWebServer };
+export { startWebServer, stopWebServer };

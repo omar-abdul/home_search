@@ -1,4 +1,5 @@
 import { Knex } from "knex";
+import { HomeSchema } from "./validate_schema";
 
 export enum Locations {
   Laascanod = "Laascanod",
@@ -21,7 +22,7 @@ export enum Status {
 
 export interface HomeObject {
   id: string;
-  home_id?: string;
+  homeId?: string;
   type: ListingType;
   location: Locations;
   description: string;
@@ -33,13 +34,23 @@ export interface HomeObject {
   lat: number;
   coordinates?: Knex.Raw;
   status?: Status;
+  images: any;
+  furnish?: "furnished" | "not furnished";
 }
 
 export interface HomeModel {
-  addHome(home: HomeObject): Promise<Pick<HomeObject, "id">[]>;
+  addHome(home: HomeObject): Promise<Pick<HomeObject, "homeId">[]>;
   removeHome(uuid: string): Promise<number>;
   getAllHomes(opts: object): Promise<HomeObject[]>;
   getHomebyID(uuid: string): Promise<HomeObject[]>;
   changeHomeStatus(status: object, id: string): Promise<number>;
+  updateHome(
+    home: Omit<HomeObject, "home_id" & "id">,
+    home_id: string
+  ): Promise<number>;
   // updateNearbyLocations():Promise<number>;
 }
+
+export const validateHomeValues = (obj: {}) => {
+  return HomeSchema.validate(obj);
+};

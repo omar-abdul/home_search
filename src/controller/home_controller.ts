@@ -5,31 +5,40 @@ import {
   Status,
 } from "../data-access/repositories/home_model";
 import { getCryptoRandomId, responseObject } from "@lib/util";
-import { ResourceNotFoundError, ValidationError } from "@lib/customerrors";
+import {
+  CustomDatabaseError,
+  ResourceNotFoundError,
+  ValidationError,
+} from "@lib/customerrors";
 import db from "src/data-access/config/db";
 
 const homeRepo: HomeModel = new HomeRepo(db);
 
 export const addHome = async (home: HomeObject) => {
   try {
-    const isHomeObj = validateHomeObj(home);
-    if (isHomeObj.err)
-      return responseObject({
-        err: new ValidationError(isHomeObj.err),
-        data: null,
-      });
+    // const isHomeObj = validateHomeObj(home);
+    // if (isHomeObj.err)
+    //   // return responseObject({
+    //   //   err: new ValidationError(isHomeObj.err),
+    //   //   data: null,
+    //   // });
+    //   throw new ValidationError(isHomeObj.err)
     home.id = getCryptoRandomId(8);
     const homeId = await homeRepo.addHome(home);
     if (homeId.length === 0)
-      return responseObject({
-        err: new ResourceNotFoundError(),
-        data: null,
-      });
+      // return responseObject({
+      //   err: new ResourceNotFoundError(),
+      //   data: null,
+      // });
+      throw new CustomDatabaseError("There was an internal error");
+    //if (home.images !== undefined && home.images?.length > 0)
+    //await addImages(home);
     return responseObject({ data: homeId[0], err: null });
   } catch (err) {
     return responseObject({ err, data: null });
   }
 };
+
 export const deactivateHome = async (id: string) => {
   try {
     if (id === null || id === undefined || id === "")
@@ -62,6 +71,19 @@ export const getAllHomes = async (opts: object = {}) => {
   try {
     const homes = await homeRepo.getAllHomes(opts);
     return responseObject({ data: homes, err: null });
+  } catch (err) {
+    return responseObject({ err, data: null });
+  }
+};
+export const updateHome = async (
+  home: Omit<HomeObject, "homeId" & "id">,
+  homeId: string
+) => {
+  try {
+    const updated = await homeRepo.updateHome(home, homeId);
+    if (updated > 0)
+      return responseObject({ data: "Home Updated Successfully", err: null });
+    throw new ResourceNotFoundError();
   } catch (err) {
     return responseObject({ err, data: null });
   }

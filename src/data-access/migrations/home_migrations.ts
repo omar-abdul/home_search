@@ -32,10 +32,10 @@ async function CreateTables(db: Knex) {
       table.string("first_name").notNullable();
       table.string("middle_name");
       table.string("last_name");
-      table.integer("phone_number").unique().notNullable();
-      table.text("user_name").unique().notNullable();
+      table.string("phone_number").unique().notNullable();
+      table.text("user_name");
       table.string("profile_pic", 255);
-      table.integer("whatsapp_number");
+      table.string("whatsapp_number");
       table.string("email").unique();
       table.string("password").notNullable();
       table.primary(["id", "uuid"]);
@@ -54,8 +54,10 @@ async function CreateTables(db: Knex) {
       table.enu("location", locations);
       table.text("description");
       table.integer("room_numbers");
-      table.decimal("price", null);
+      table.decimal("price");
       table.geometry("coordinates");
+      table.decimal("lat", null);
+      table.decimal("lon", null);
       table
         .string("user_id")
         .references("id")
@@ -74,11 +76,10 @@ async function CreateTables(db: Knex) {
         .defaultTo("inactive");
       table.dateTime("created_at").defaultTo(db.fn.now());
       table.boolean("is_paid").notNullable();
-    })
-    .createTable("home_images", (table) => {
-      table.increments("id").notNullable().primary();
-      table.uuid("home_id").references("home_id").inTable("homes");
-      table.string("image_link");
+      table.json("images");
+      table
+        .enu("furnish", ["furnished", "not furnished"])
+        .defaultTo("not furnished");
     })
     .createTable("sessions", (table) => {
       table.string("session_id").primary();
@@ -91,7 +92,7 @@ async function CreateTables(db: Knex) {
       table.dateTime("created_at").defaultTo(db.fn.now(6));
       table
         .dateTime("expires_at")
-        .defaultTo(db.raw(`?+INTERVAL + '? day' `, [db.fn.now(6), 30]));
+        .defaultTo(db.raw(`?+ INTERVAL '? day' `, [db.fn.now(6), 30]));
       table.boolean("is_revoked").notNullable();
     })
     .createTable("places", (table) => {

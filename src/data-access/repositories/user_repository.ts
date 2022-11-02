@@ -21,10 +21,8 @@ export default class UserRepo {
   }
   async addUser(user: UserObject) {
     try {
-      const { error, value } = UserSchema.validate(user);
-      if (error) throw error;
-
-      return await this.UserDb().insert(user).returning("id");
+      const u = (({ repeatPassword, ...obj }) => obj)(user);
+      return await this.UserDb().insert(u).returning("id");
     } catch (error: any) {
       throw new CustomDatabaseError(error.message);
     }
@@ -131,8 +129,8 @@ export default class UserRepo {
   }
 
   private validateUserObject(object: Partial<UserObject>) {
-    const { error, value } = validateUserObject(object);
-    if (error) throw error;
+    // const { error, value } = validateUserObject(object);
+    // if (error) throw error;
     return;
   }
   private valdiateId(id: string) {

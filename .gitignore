@@ -4,3 +4,4 @@ dist
 *.txt
 .nyc_output
 coverage
+firebaseadmin.json

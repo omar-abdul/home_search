@@ -9,7 +9,8 @@ services:
     ports:
       - '5432:5432'
     environment:
-      POSTGRES_PASSWORD: $PG_PASSWORD
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      POSTGRES_DB: ${PG_DATABASE}
 
   app:
     image: node:16-alpine

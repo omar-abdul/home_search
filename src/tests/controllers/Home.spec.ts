@@ -30,8 +30,8 @@ describe("Homes/Listing Controller", () => {
   beforeEach(() => {
     homeObj = {
       id: "undefined",
-      location: Locations.Burco,
-      type: ListingType.Sale,
+      location: "Burco" as Locations,
+      type: "Sale" as ListingType,
       description: "home for sale",
       roomNumbers: 3,
       price: 3.5,
@@ -40,6 +40,8 @@ describe("Homes/Listing Controller", () => {
       status: Status.Active,
       lon: 0,
       lat: 0,
+      furnish: "not furnished",
+      images: {},
     };
   });
   afterEach(() => {
@@ -96,6 +98,7 @@ describe("Homes/Listing Controller", () => {
           isPaid: false,
           lon: 0,
           lat: 0,
+          images: {},
         },
         {
           id: "secondfakehomeid",
@@ -108,6 +111,7 @@ describe("Homes/Listing Controller", () => {
           isPaid: true,
           lon: 0.5,
           lat: 0.5,
+          images: {},
         },
       ];
       const home_stub = sinon
@@ -133,6 +137,7 @@ describe("Homes/Listing Controller", () => {
           isPaid: false,
           lon: 0,
           lat: 0,
+          images: {},
         },
       ];
       _id = "fakehomeid";
