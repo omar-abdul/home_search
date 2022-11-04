@@ -1,4 +1,3 @@
-import { ValidationError } from "@lib/customerrors";
 import Joi from "joi";
 import { HomeObject } from "./home_model";
 import { UserObject, User } from "./user_model";
@@ -28,41 +27,20 @@ const userarray = [
   "active",
 ];
 export const UserSchema = Joi.object(<User>(<unknown>{
-  userName: Joi.string().alphanum().min(4).max(20).required().messages({
-    "string.empty": "Username cannot be left empty",
-    "string.min": "Username should have at least a min of 4 characters",
-    "any.required": "Username is a required field",
+  userName: Joi.string().alphanum().min(4).max(20).required(),
+  email: Joi.string().email({
+    minDomainSegments: 2,
+    tlds: { allow: ["com", "net"] },
   }),
-  email: Joi.string()
-    .email({
-      minDomainSegments: 2,
-      tlds: { allow: ["com", "net"] },
-    })
-    .message("Email must be a valid email"),
-  phoneNumber: Joi.string()
-    .min(8)
-    .max(10)
-    .required()
-    .messages({ "*": "Invalid phone nnumber" }),
-  whatsappNumber: Joi.string()
-    .required()
-    .min(8)
-    .max(11)
-    .messages({ "*": "Invalid phone nnumber" }),
+  phoneNumber: Joi.string().min(8).max(10).required(),
+  whatsappNumber: Joi.string().required().min(8).max(11),
   firstName: Joi.string().required().max(20),
   lastName: Joi.string().required().max(20),
   middleName: Joi.string().max(20),
-  password: Joi.string()
-    .pattern(new RegExp("^(?=.*d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,20}$"))
-    .error(
-      (errors) =>
-        new ValidationError(
-          "Password must be 8 characters with a mix of uppercase,lowercase and numbers"
-        )
-    ),
-  repeatPassword: Joi.valid(Joi.ref("password")).required().messages({
-    "any.only": "Passwords must match",
-  }),
+  password: Joi.string().pattern(
+    new RegExp("^(?=.*d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,20}$")
+  ),
+  repeatPassword: Joi.ref("password"),
 })).with("phoneNumber", "password");
 
 export const HomeSchema = Joi.object({

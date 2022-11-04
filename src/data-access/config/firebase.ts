@@ -1,11 +1,11 @@
 import { credential, ServiceAccount } from "firebase-admin";
-import { applicationDefault, initializeApp } from "firebase-admin/app";
+import { initializeApp } from "firebase-admin/app";
 import { getStorage } from "firebase-admin/storage";
 
 import serviceAccount from "../../../firebaseadmin.json";
 
 initializeApp({
-  credential: applicationDefault(),
+  credential: credential.cert(<ServiceAccount>serviceAccount),
   storageBucket: "homesearch-3bd22.appspot.com",
 });
 

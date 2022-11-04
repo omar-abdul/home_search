@@ -13,10 +13,8 @@ const router = express.Router();
 router.post("/register", async (req, res, next) => {
   const user: UserObject = req.body;
   passErrorToNext(addUser(user), next).then((data) => {
-    if (data) {
-      res.json({ success: true, data }).status(200);
-      logger.info(`user registerd with id ${data}`);
-    }
+    res.json({ success: true, data }).status(200);
+    logger.info(`user registerd with id ${data}`);
   });
 });
 
@@ -26,10 +24,8 @@ router.post("/login", async (req, res, next) => {
 
   passErrorToNext(loginHandler({ phoneNumber, password }), next).then(
     (data) => {
-      if (data) {
-        res.json({ data });
-        logger.info(`User with session_id ${data} logged in`);
-      }
+      res.json({ data });
+      logger.info(`User with session_id ${data} logged in`);
     }
   );
 });
@@ -43,14 +39,9 @@ router.post(
       user = <UserObject>req.user;
       profileData = <UserObject>req.body;
     }
-    const result = await passErrorToNext(
-      updateUser(user!.id, profileData!),
-      next
-    );
-    if (result) {
-      res.json(result).status(200);
-      logger.info(`User with id ${result} updated`);
-    }
+    const result = await updateUser(user!.id, profileData!);
+    res.json(result).status(200);
+    logger.info(`User with id ${result} updated`);
   }
 );
 router.get("/", (req, res, next) => {
