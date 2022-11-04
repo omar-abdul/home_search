@@ -27,7 +27,7 @@ const errorHandler = {
       const appError: BaseError = normalizeError(errortoHandle);
 
       logger.error(appError.message);
-
+      // console.log(appError.isTrusted);
       if (!appError.isTrusted) {
         terminateHttpServer();
       }

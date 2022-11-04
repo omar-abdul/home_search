@@ -14,6 +14,8 @@ import { HomeObject } from "../data-access/repositories/home_model";
 import { UserObject } from "../data-access/repositories/user_model";
 import { logger } from "@lib/logger";
 import { passErrorToNext } from "@lib/util";
+import { ValidationError } from "@lib/customerrors";
+
 const router = express.Router();
 const STATIC_FILES_PATH = path.join(path.resolve("./"), "public/tmp/uploads");
 const storage = multer.diskStorage({
@@ -26,24 +28,56 @@ const storage = multer.diskStorage({
     cb(null, `${file.fieldname}__${Date.now()}${fileExtension}`);
   },
 });
-const upload = multer({ storage });
+let fileType: any;
+const whitelist = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
+
+const dynamicImport = new Function("specifier", "return import(specifier)"); //this imports esm modules and must be 'awaited';
+
+const fileFilter = (
+  req: Request,
+  file: Express.Multer.File,
+  cb: CallableFunction
+) => {
+  if (!whitelist.includes(file.mimetype)) {
+    (req as any).fileValid = false;
+    return cb(null, false);
+  }
+
+  return cb(null, true);
+};
+const upload = multer({ storage, fileFilter });
 
 router.post(
   "/add-home",
-  upload.array("home_images", 5),
+
   passport.authenticate("bearer", { session: false }),
+  upload.array("home_images", 5),
   async (req: Request, res: Response, next: NextFunction) => {
+    //if ((req as any)?.fileValid === false)
+    // return next(new ValidationError("Only image files are allowed"));
     const home: HomeObject = req.body;
     home.images = [];
     const files = req.files! as Express.Multer.File[];
 
-    files.map((file) =>
-      home.images.push({
-        path: file.path,
-        filename: file.filename,
-      })
+    let fileType = await dynamicImport("file-type");
+    let arr: [{}] = [{}];
+
+    files.map(async (file) => {
+      const meta = await fileType.fileTypeFromFile(file.path);
+      if (!whitelist.includes(meta.mime)) {
+        return next(new ValidationError("file is not allowed"));
+      }
+      return;
+    });
+
+    files.map(
+      async (file) =>
+        (home.images as [{}]).push({
+          path: file.path,
+          filename: file.filename,
+        })
+      // }
     );
-    console.log(home.images);
 
     const user = <UserObject>req.user;
     home.userId = user.id;
