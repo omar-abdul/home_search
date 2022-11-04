@@ -28,7 +28,6 @@ export default class HomeRepo {
       );
       const imageArray = home.images instanceof Array ? [...home.images] : [];
       home.images = {};
-
       return this.HomeDb()
         .insert(home)
         .returning("home_id")
@@ -42,18 +41,20 @@ export default class HomeRepo {
   }
 
   async uploadImages(image: any[], homeId: { [key: string]: any }) {
+    let tempArr: string[] = [];
     image.forEach(async (img) => {
-      await storage.upload(`${img.path}`, {
-        destination: `${homeId?.homeId}/${img.filename}`,
-      });
-    });
+      const urlToSave = `https://firebasestorage.googleapis.com/v0/b/homesearch-3bd22.appspot.com/o/${homeId.homeId}%2F${img.filename}?alt=media`;
 
-    let imgJsonToSave: {} = {};
-
-    image.map((img, index) => {
-      (imgJsonToSave as Record<typeof index, typeof index>)[index] =
-        img?.filename;
+      storage
+        .upload(`${img.path}`, {
+          destination: `${homeId?.homeId}/${img.filename}`,
+        })
+        .then((v) => {});
+      tempArr.push(urlToSave);
     });
+    let imgJsonToSave = {};
+    Object.assign(imgJsonToSave, tempArr);
+
     return await this.HomeDb().where(homeId).update("images", imgJsonToSave);
   }
   private getExtension(type: any) {
