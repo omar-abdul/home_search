@@ -822,3 +822,4 @@
 {"level":"info","message":"Home with uuid {\"homeId\":\"443f12c7-1f05-478b-b132-8601c518df85\"} was added"}
 {"level":"info","message":"Server has started successfully on  [ { address: '::', family: 'IPv6', port: 8080 }, [length]: 1 ],"}
 {"level":"info","message":"Home with uuid {\"homeId\":\"e80d94c8-3198-4c6c-bcb5-906debf596f8\"} was added"}
+{"level":"info","message":"Server has started successfully on  [ { address: '::', family: 'IPv6', port: 8080 }, [length]: 1 ],"}
