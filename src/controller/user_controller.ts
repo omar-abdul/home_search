@@ -5,7 +5,9 @@
  *
  */
 
-import crypto, { BinaryLike } from "crypto";
+import crypto from "crypto";
+import * as argon from "argon2";
+import { parsePhoneNumber, isValidPhoneNumber } from "libphonenumber-js";
 import db from "../data-access/config/db";
 import UserRepo from "../data-access/repositories/user_repository";
 import { UserModel, UserObject } from "../data-access/repositories/user_model";
@@ -16,6 +18,7 @@ import {
   UserInputError,
   ValidationError,
 } from "@lib/customerrors";
+
 import { UserSchema } from "src/data-access/repositories/validate_schema";
 
 const userRepo: UserModel = new UserRepo(db);
@@ -25,7 +28,14 @@ export const addUser = async (user: UserObject) => {
     const isValidUser = validateUser(user);
     let res: Pick<UserObject, "id">[];
     const { error, value } = UserSchema.validate(user);
-    if (error) throw error;
+
+    if (error)
+      throw new ValidationError(error.message, error._original, error.details);
+    if (isValidPhoneNumber(user.phoneNumber, "SO") === false)
+      throw new ValidationError("Invalid SO Phone number");
+    const localPhoneNum = parsePhoneNumber(user.phoneNumber, "SO");
+
+    user.phoneNumber = localPhoneNum?.formatNational()!;
     let { salt } = user;
     const user_exists = await userRepo.getUserByNumber(user.phoneNumber);
     if (user_exists.length > 0)
@@ -34,13 +44,18 @@ export const addUser = async (user: UserObject) => {
       );
 
     salt = getCryptoRandomId(16);
-    const hash = crypto
-      .pbkdf2Sync(user.password, salt, 1000, 64, "sha512")
-      .toString("hex");
+    // const hash = crypto
+    //   .pbkdf2Sync(user.password, salt, 1000, 64, "sha512")
+    //   .toString("hex");
+    const hash = await argon.hash(user.password);
+    const { password: _pass, phoneNumber } = user;
+
     user.id = await genRandomId();
     user.password = hash;
     user.salt = salt;
     res = await userRepo.addUser(user);
+
+    // const sessionId = await loginHandler({ phoneNumber, password: _pass });
 
     return responseObject({ data: res[0].id, err: null });
   } catch (err) {
@@ -51,19 +66,24 @@ export const loginHandler = async ({
   phoneNumber,
   password,
 }: {
-  phoneNumber: number;
+  phoneNumber: string;
   password: string;
 }) => {
   try {
+    const localPhoneNum = parsePhoneNumber(phoneNumber, "SO");
+
+    phoneNumber = localPhoneNum?.formatNational()!;
     const user: UserObject[] = await userRepo.getUserByNumber(phoneNumber);
+
     if (user.length === 0)
       throw new LoginFailureError("Phone Number or Password do not match");
     const { salt, password: pwd, id } = user[0];
 
-    const hash = crypto
-      .pbkdf2Sync(password, salt, 1000, 64, "sha512")
-      .toString("hex");
-    if (hash !== pwd)
+    // const hash = crypto
+    //   .pbkdf2Sync(password, salt, 1000, 64, "sha512")
+    //   .toString("hex");
+    if ((await argon.verify(pwd, password)) === false)
+      // if (hash !== pwd)
       throw new LoginFailureError("Phone Number or Password do not match");
     const token = crypto.randomBytes(64).toString("hex");
     const result = await userRepo.addUserSession(id, token);

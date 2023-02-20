@@ -1,6 +1,7 @@
 import express, { NextFunction, Response, Request } from "express";
 import multer, { Multer } from "multer";
 import path from "path";
+import { unlink } from "fs/promises";
 
 import { passport } from "../data-access/config/passport";
 import {
@@ -13,7 +14,7 @@ import {
 import { HomeObject } from "../data-access/repositories/home_model";
 import { UserObject } from "../data-access/repositories/user_model";
 import { logger } from "@lib/logger";
-import { passErrorToNext } from "@lib/util";
+import { genRandomId, getCryptoRandomId, passErrorToNext } from "@lib/util";
 import { ValidationError } from "@lib/customerrors";
 
 const router = express.Router();
@@ -22,10 +23,10 @@ const storage = multer.diskStorage({
   destination(req, file, cb) {
     cb(null, STATIC_FILES_PATH);
   },
-  filename(req, file, cb) {
+  async filename(req, file, cb) {
     const { originalname } = file;
     const fileExtension = (originalname.match(/\.+[\S]+$/) || [])[0];
-    cb(null, `${file.fieldname}__${Date.now()}${fileExtension}`);
+    cb(null, `${file.fieldname}__${await genRandomId()}${fileExtension}`);
   },
 });
 let fileType: any;
@@ -38,6 +39,7 @@ const fileFilter = (
   file: Express.Multer.File,
   cb: CallableFunction
 ) => {
+  console.log(file.mimetype);
   if (!whitelist.includes(file.mimetype)) {
     (req as any).fileValid = false;
     return cb(null, false);
@@ -53,8 +55,8 @@ router.post(
   passport.authenticate("bearer", { session: false }),
   upload.array("home_images", 5),
   async (req: Request, res: Response, next: NextFunction) => {
-    //if ((req as any)?.fileValid === false)
-    // return next(new ValidationError("Only image files are allowed"));
+    if ((req as any)?.fileValid === false)
+      return next(new ValidationError("Only image files are allowed"));
     const home: HomeObject = req.body;
     home.images = [];
     const files = req.files! as Express.Multer.File[];
@@ -82,8 +84,20 @@ router.post(
     const user = <UserObject>req.user;
     home.userId = user.id;
     passErrorToNext(addHome(home), next).then((data) => {
-      res.json({ data });
-      logger.info(`Home with uuid ${JSON.stringify(data)} was added`);
+      if (data) {
+        res.json({ success: true, data });
+        logger.info(`Home with uuid ${JSON.stringify(data)} was added`);
+      }
+
+      files.forEach((file) => {
+        unlink(file.path)
+          .then(() => logger.info(`Removed ${file.path}`))
+          .catch((err) =>
+            logger.error(
+              `There was an error removing ${file.path} due to ${err}`
+            )
+          );
+      });
     });
   }
 );
@@ -91,9 +105,9 @@ router.get(
   "/homes",
   async (req: Request, res: Response, next: NextFunction) => {
     const obj = req.body;
-    const { data, err } = await getAllHomes(obj);
-    if (err) throw err;
-    else res.json({ data }).status(200);
+    const data = await passErrorToNext(getAllHomes(obj), next);
+
+    if (data) res.json({ success: true, data }).status(200);
   }
 );
 
@@ -118,7 +132,7 @@ router.put("/home/deactivate", async (req, res, next) => {
   logger.info(`Home with uuid ${homeId} was deactived`);
 });
 
-router.put("home/update", async (req, res, next) => {
+router.put("/home/update", async (req, res, next) => {
   const { id } = req.body;
   const home = (({ id, homeId, ...obj }) => obj)(req.body);
   const { data, err } = await updateHome(home, id);
@@ -126,4 +140,8 @@ router.put("home/update", async (req, res, next) => {
   else
     res.json({ success: true, data: `Home updated successfuly` }).status(200);
 });
+
+//TODO
+//endpoint to update and delete the images
+
 export default router;

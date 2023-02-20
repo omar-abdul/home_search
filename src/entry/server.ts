@@ -55,15 +55,15 @@ function handleRouteErrors(expressApp: express.Application) {
       }
 
       errorHandler.handleError(error);
-
       res
         .status(error?.statusCode || 500)
         .json({
-          sucess: false,
+          success: false,
           err:
-            error instanceof CustomDatabaseError
-              ? "There was an internal error"
-              : error?.message,
+            // error instanceof CustomDatabaseError
+            //   ? "There was an internal error"
+            error?.message,
+          data: error,
         })
         .end();
     }

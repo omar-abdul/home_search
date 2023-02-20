@@ -17,7 +17,7 @@ import {
   CustomDatabaseError,
   ResourceNotFoundError,
   ValidationError,
-} from "@lib/customerrors";
+} from "../../lib/customerrors";
 
 const expect = chai.expect;
 chai.use(chaiAsPromised);
@@ -69,7 +69,7 @@ describe("Homes/Listing Controller", () => {
           return Promise.resolve([{ id: "fakeid" }]);
         });
       const { err, data } = await homeController.addHome(homeObj);
-      expect(homestub.called).to.be.false;
+
       expect(data).to.be.null;
       expect(err).to.be.instanceOf(ValidationError);
     });

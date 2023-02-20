@@ -41,14 +41,13 @@ export const UserSchema = Joi.object(<User>(<unknown>{
     .message("Email must be a valid email"),
   phoneNumber: Joi.string()
     .min(8)
-    .max(10)
+    .max(15)
     .required()
-    .messages({ "*": "Invalid phone nnumber" }),
+    .messages({ "*": "Invalid phone number" }),
   whatsappNumber: Joi.string()
-    .required()
     .min(8)
-    .max(11)
-    .messages({ "*": "Invalid phone nnumber" }),
+    .max(15)
+    .messages({ "*": "Invalid phone number" }),
   firstName: Joi.string().required().max(20),
   lastName: Joi.string().required().max(20),
   middleName: Joi.string().max(20),
@@ -67,9 +66,14 @@ export const UserSchema = Joi.object(<User>(<unknown>{
 
 export const HomeSchema = Joi.object({
   description: Joi.string().required().min(10),
-  roomNumbers: Joi.number().required(),
+  roomNumbers: Joi.number().required().greater(0),
   price: Joi.number().required(),
   furnish: Joi.string(),
-  lat: Joi.number().required(),
-  lon: Joi.number().required(),
+  lat: Joi.number().required().min(-90).max(90),
+  lon: Joi.number().required().min(-180).max(180),
+  userId: Joi.string().required(),
+  type: Joi.string().pattern(/Rent|Sale/),
+  images: Joi.array(),
+  id: Joi.string(),
+  is_paid: Joi.boolean(),
 });

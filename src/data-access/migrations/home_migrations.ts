@@ -75,7 +75,7 @@ async function CreateTables(db: Knex) {
         ])
         .defaultTo("inactive");
       table.dateTime("created_at").defaultTo(db.fn.now());
-      table.boolean("is_paid").notNullable();
+      table.boolean("is_paid").notNullable().defaultTo(false);
       table.json("images");
       table
         .enu("furnish", ["furnished", "not furnished"])

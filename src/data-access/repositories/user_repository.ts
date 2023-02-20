@@ -41,7 +41,7 @@ export default class UserRepo {
       throw new CustomDatabaseError(err.message);
     }
   }
-  async getUserByNumber(phoneNumber: number) {
+  async getUserByNumber(phoneNumber: string) {
     try {
       return await this.UserDb().where("phoneNumber", phoneNumber).select("*");
     } catch (error: any) {

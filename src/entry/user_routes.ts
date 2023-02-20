@@ -1,7 +1,10 @@
 import express, { NextFunction, Request, Response } from "express";
 import {
   addUser,
+  getUserById,
+  getUserFromSessionId,
   loginHandler,
+  removeUser,
   updateUser,
 } from "../controller/user_controller";
 import { passport } from "../data-access/config/passport";
@@ -12,22 +15,29 @@ const router = express.Router();
 
 router.post("/register", async (req, res, next) => {
   const user: UserObject = req.body;
+  const { phoneNumber, password } = user;
   passErrorToNext(addUser(user), next).then((data) => {
     if (data) {
-      res.json({ success: true, data }).status(200);
-      logger.info(`user registerd with id ${data}`);
+      passErrorToNext(loginHandler({ phoneNumber, password }), next).then(
+        (token) => {
+          if (token) {
+            res.json({ success: true, data: token }).status(200);
+            logger.info(`user registerd with id ${data}`);
+          }
+        }
+      );
     }
   });
 });
 
 router.post("/login", async (req, res, next) => {
-  const { phoneNumber, password }: { phoneNumber: number; password: string } =
+  const { phoneNumber, password }: { phoneNumber: string; password: string } =
     req.body;
 
   passErrorToNext(loginHandler({ phoneNumber, password }), next).then(
     (data) => {
       if (data) {
-        res.json({ data });
+        res.json({ success: true, data });
         logger.info(`User with session_id ${data} logged in`);
       }
     }
@@ -48,12 +58,33 @@ router.post(
       next
     );
     if (result) {
-      res.json(result).status(200);
+      res.json({ success: true, data: result }).status(200);
       logger.info(`User with id ${result} updated`);
     }
   }
 );
-router.get("/", (req, res, next) => {
-  res.send("this is freaking working");
-});
+router.get(
+  "/me",
+  passport.authenticate("bearer", { session: false }),
+  async (req, res, next) => {
+    const sessionId = req.headers.authorization!.split(" ")[1];
+    const result = await passErrorToNext(getUserFromSessionId(sessionId), next);
+
+    if (result) {
+      res.json({ success: true, data: result });
+    }
+  }
+);
+
+router.delete(
+  "/profile/delete",
+  passport.authenticate("bearer", { session: false }),
+  async (req: Request, res: Response, next: NextFunction) => {
+    const user = <UserObject>req.user;
+    const result = await passErrorToNext(removeUser(user.id), next);
+    if (result) {
+      res.json({ success: true, data: result });
+    }
+  }
+);
 export default router;

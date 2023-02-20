@@ -5,9 +5,15 @@ const logger = winston.createLogger({
   transports: [
     new winston.transports.Console(),
     new winston.transports.File({ filename: "error.log", level: "error" }),
-    new winston.transports.File({ filename: "combined.log" }),
+    new winston.transports.File({ filename: "info.log", level: "info" }),
   ],
-  format: winston.format.combine(winston.format.splat(), winston.format.json(), )
+  format: winston.format.combine(
+    winston.format.splat(),
+    winston.format.timestamp({
+      format: "YYYY-MM-DD HH:mm:ss",
+    }),
+    winston.format.json()
+  ),
 });
 
 export { logger };

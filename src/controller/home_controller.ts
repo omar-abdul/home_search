@@ -23,6 +23,8 @@ export const addHome = async (home: HomeObject) => {
     //   //   data: null,
     //   // });
     //   throw new ValidationError(isHomeObj.err)
+    if (home.userId === undefined || home.userId === null || home.userId === "")
+      throw new ValidationError("User id cannot be empty");
     home.id = getCryptoRandomId(8);
     const homeId = await homeRepo.addHome(home);
     if (homeId.length === 0)

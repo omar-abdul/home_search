@@ -32,7 +32,7 @@ export const genRandomId = (): Promise<string> => {
 };
 
 export const getCryptoRandomId = (size: number) => {
-  return crypto.randomBytes(size | 16).toString("hex");
+  return crypto.randomBytes(size || 16).toString("hex");
 };
 
 export const responseObject = ({

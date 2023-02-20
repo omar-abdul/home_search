@@ -1,5 +1,6 @@
 import chai, { assert } from "chai";
 import sinon from "sinon";
+import * as argon from "argon2";
 import * as userController from "../../controller/user_controller";
 import { UserObject } from "../../data-access/repositories/user_model";
 import {
@@ -8,7 +9,7 @@ import {
   ResourceNotFoundError,
   UserInputError,
   ValidationError,
-} from "@lib/customerrors";
+} from "../../lib/customerrors";
 import chaiAsPromised from "chai-as-promised";
 import UserRepo from "src/data-access/repositories/user_repository";
 import crypto, { BinaryLike } from "crypto";
@@ -20,17 +21,15 @@ describe("User Functions", () => {
   let user: UserObject;
 
   beforeEach(() => {
-    user = {
-      id: "",
-      phoneNumber: 1111,
-      whatsappNumber: 1111,
+    (user as any) = {
+      phoneNumber: "75432567",
+      whatsappNumber: "11111111",
       userName: "special",
-      email: "my.com",
+      email: "my@gmail.com",
       firstName: "Mine",
       lastName: "you",
-      password: "somepassword",
-      active: true,
-      salt: "",
+      password: "Somepassword",
+      repeatPassword: "Somepassword",
     };
   });
   afterEach(() => {
@@ -42,9 +41,11 @@ describe("User Functions", () => {
       const user_stub = sinon
         .stub(UserRepo.prototype, "addUser")
         .resolves([user]);
+      const sessHStub = sinon
+        .stub(userController, "loginHandler")
+        .resolves({ err: null, data: "FakesessionID" });
       sinon.stub(UserRepo.prototype, "getUserByNumber").resolves([]);
       const { err, data } = await userController.addUser(user);
-
       expect(data).to.be.a("string").length.greaterThan(0);
       expect(err).to.be.null;
     });
@@ -61,9 +62,10 @@ describe("User Functions", () => {
   describe("Login User", function () {
     it("Should return a token for a successful login", async function () {
       user.salt = "fakesalt";
-      user.password = crypto
-        .pbkdf2Sync(user.password, user.salt, 1000, 64, "sha512")
-        .toString("hex");
+      // user.password = crypto
+      //   .pbkdf2Sync(user.password, user.salt, 1000, 64, "sha512")
+      //   .toString("hex");
+      user.password = await argon.hash(user.password);
 
       const user_stub = sinon
         .stub(UserRepo.prototype, "getUserByNumber")
@@ -74,7 +76,7 @@ describe("User Functions", () => {
       const { phoneNumber } = user;
       const { err, data } = await userController.loginHandler({
         phoneNumber,
-        password: "somepassword",
+        password: "Somepassword",
       });
 
       expect(data).to.be.a("string");
@@ -84,10 +86,10 @@ describe("User Functions", () => {
 
     it("Should return an error  for wrong password", async function () {
       user.salt = "fakesalt";
-      user.password = crypto
-        .pbkdf2Sync(user.password, user.salt, 1000, 64, "sha512")
-        .toString("hex");
-
+      // user.password = crypto
+      //   .pbkdf2Sync(user.password, user.salt, 1000, 64, "sha512")
+      //   .toString("hex");
+      user.password = await argon.hash(user.password);
       const user_stub = sinon
         .stub(UserRepo.prototype, "getUserByNumber")
         .resolves([user]);
@@ -116,7 +118,7 @@ describe("User Functions", () => {
         .resolves([]);
 
       const { err, data } = await userController.loginHandler({
-        phoneNumber: 2342,
+        phoneNumber: "2342",
         password: "somepassword",
       });
 
@@ -211,7 +213,7 @@ describe("User Functions", () => {
         .stub(UserRepo.prototype, "updateUser")
         .resolves(1);
       const { err, data } = await userController.updateUser("fakeid", {
-        phoneNumber: 333,
+        phoneNumber: "333",
       });
       expect(data).to.be.a("string");
       expect(err).to.be.null;
@@ -221,7 +223,7 @@ describe("User Functions", () => {
       const { err, data } = await userController.updateUser("fakeid", {
         email: "incorrectemail",
       });
-      expect(err).to.be.instanceOf(CustomDatabaseError);
+      expect(err).to.be.instanceOf(ResourceNotFoundError);
       expect(data).to.be.null;
     });
   });

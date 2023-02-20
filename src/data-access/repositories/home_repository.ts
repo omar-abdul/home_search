@@ -1,5 +1,6 @@
 import { Knex } from "knex";
 import knexPostGis, { KnexPostgis } from "knex-postgis";
+import { ValidationError as JoiValidationError } from "joi";
 import db from "../config/db";
 import { CustomDatabaseError, ValidationError } from "@lib/customerrors";
 import { HomeObject, validateHomeValues } from "./home_model";
@@ -21,6 +22,7 @@ export default class HomeRepo {
       const { lon, lat } = home;
       if (!this.validateLonLat(lon, lat))
         throw new ValidationError("Invalid Longtitude & Latitude values");
+      this.validateHome(home);
 
       home.coordinates = this.st.geomFromText(
         `Point(${home.lon} ${home.lat})`,
@@ -36,6 +38,7 @@ export default class HomeRepo {
           return res;
         });
     } catch (error: any) {
+      if (error instanceof ValidationError) throw error;
       throw new CustomDatabaseError(error.message);
     }
   }
@@ -55,15 +58,10 @@ export default class HomeRepo {
     let imgJsonToSave = {};
     Object.assign(imgJsonToSave, tempArr);
 
-    return await this.HomeDb().where(homeId).update("images", imgJsonToSave);
-  }
-  private getExtension(type: any) {
-    const fileTypes = {
-      jpeg: "jpeg",
-      png: "png",
-    };
-    const t: keyof typeof fileTypes = type.split("/")[1];
-    return fileTypes[t];
+    return await this.HomeDb()
+      .where(homeId)
+      .update("images", imgJsonToSave)
+      .returning("homeId");
   }
 
   async removeHome(uuid: string) {
@@ -101,7 +99,7 @@ export default class HomeRepo {
   }
   async getHomebyID(id: string) {
     try {
-      return await this.HomeDb().select("*").where("id", id);
+      return await this.HomeDb().select("*").where("home_id", id);
     } catch (error: any) {
       throw new CustomDatabaseError(error.message);
     }
@@ -133,7 +131,8 @@ export default class HomeRepo {
 
   private validateHome(obj: {}) {
     const { error, value } = validateHomeValues(obj);
-    if (error) throw error;
+    if (error)
+      throw new ValidationError(error.message, error._original, error.details);
     return;
   }
 }

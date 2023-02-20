@@ -4,9 +4,9 @@ import { userPartialSchema, idValidate } from "./validate_schema";
 
 export interface User {
   id?: string;
-  phoneNumber: number;
+  phoneNumber: string;
   userName: string;
-  whatsappNumber: number;
+  whatsappNumber: string;
   email: string;
   firstName: string;
   lastName: string;
@@ -31,7 +31,7 @@ export interface UserModel {
   getUserById(id: string): Promise<UserObject[]>;
   getAllUsers(): Promise<UserObject[]>;
   getUserByEmail(email: string): Promise<UserObject[]>;
-  getUserByNumber(phoneNumner: number): Promise<UserObject[]>;
+  getUserByNumber(phoneNumner: string): Promise<UserObject[]>;
   getUserSession(token: string): Promise<SessionObject[]>;
   delUser(id: string): Promise<number>;
   addUserSession(

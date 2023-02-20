@@ -1,4 +1,4 @@
-import { CustomDatabaseError } from "@lib/customerrors";
+import { CustomDatabaseError } from "../../lib/customerrors";
 import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import * as placesController from "../../controller/place_controller";
