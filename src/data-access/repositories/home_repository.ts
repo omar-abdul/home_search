@@ -1,7 +1,5 @@
 import { Knex } from "knex";
 import knexPostGis, { KnexPostgis } from "knex-postgis";
-import { ValidationError as JoiValidationError } from "joi";
-import db from "../config/db";
 import { CustomDatabaseError, ValidationError } from "@lib/customerrors";
 import { HomeObject, validateHomeValues } from "./home_model";
 import storage from "../config/firebase";
@@ -28,8 +26,11 @@ export default class HomeRepo {
         `Point(${home.lon} ${home.lat})`,
         4326
       );
-      const imageArray = home.images instanceof Array ? [...home.images] : [];
-      home.images = {};
+      const imageArray =
+        home.images instanceof Array
+          ? home.images.map((obj) => structuredClone(obj))
+          : [];
+
       return this.HomeDb()
         .insert(home)
         .returning("home_id")

@@ -41,7 +41,7 @@ describe("Homes/Listing Controller", () => {
       lon: 0,
       lat: 0,
       furnish: "not furnished",
-      images: {},
+      images: [],
     };
   });
   afterEach(() => {
@@ -98,7 +98,7 @@ describe("Homes/Listing Controller", () => {
           isPaid: false,
           lon: 0,
           lat: 0,
-          images: {},
+          images: [],
         },
         {
           id: "secondfakehomeid",
@@ -111,7 +111,7 @@ describe("Homes/Listing Controller", () => {
           isPaid: true,
           lon: 0.5,
           lat: 0.5,
-          images: {},
+          images: [],
         },
       ];
       const home_stub = sinon
@@ -137,7 +137,7 @@ describe("Homes/Listing Controller", () => {
           isPaid: false,
           lon: 0,
           lat: 0,
-          images: {},
+          images: [],
         },
       ];
       _id = "fakehomeid";

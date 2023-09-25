@@ -58,7 +58,7 @@ router.post(
     if ((req as any)?.fileValid === false)
       return next(new ValidationError("Only image files are allowed"));
     const home: HomeObject = req.body;
-    home.images = [];
+
     const files = req.files! as Express.Multer.File[];
 
     let fileType = await dynamicImport("file-type");
@@ -74,7 +74,7 @@ router.post(
 
     files.map(
       async (file) =>
-        (home.images as [{}]).push({
+        home.images.push({
           path: file.path,
           filename: file.filename,
         })
@@ -107,7 +107,7 @@ router.get(
     const obj = req.body;
     const data = await passErrorToNext(getAllHomes(obj), next);
 
-    if (data) res.json({ success: true, data }).status(200);
+    res.json({ success: true, data }).status(200);
   }
 );
 
@@ -141,7 +141,6 @@ router.put("/home/update", async (req, res, next) => {
     res.json({ success: true, data: `Home updated successfuly` }).status(200);
 });
 
-//TODO
-//endpoint to update and delete the images
+//TODO endpoint to update and delete the images
 
 export default router;

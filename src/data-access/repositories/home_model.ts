@@ -34,7 +34,7 @@ export interface HomeObject {
   lat: number;
   coordinates?: Knex.Raw;
   status?: Status;
-  images: [{}] | {};
+  images: object[];
   furnish?: "furnished" | "not furnished";
 }
 
