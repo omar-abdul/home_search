@@ -1,7 +1,7 @@
 {
   "name": "guriraadi",
   "version": "1.0.0",
-  "description": "Search for houses in somalia/somaliland",
+  "description": "Search for houses in somalia",
   "main": "app.js",
   "scripts": {
     "test": "mocha --require ts-node/register -r tsconfig-paths/register  src/tests/**/*.spec.ts",

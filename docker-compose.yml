@@ -5,24 +5,28 @@ services:
     build: .
     volumes:
       - guri-raadi-data:/var/lib/postgresql/data
-      - ~/allback:/backups
+      - ./backups:/backups
     ports:
       - '5432:5432'
     environment:
       POSTGRES_PASSWORD: ${PG_PASSWORD}
-      POSTGRES_DB: ${PG_DATABASE}
+      # POSTGRES_DB: ${PG_DATABASE}
 
   app:
-    image: node:18-alpine
-  
-    command: sh -c "apk --no-cache add --virtual .builds-deps build-base python3 &&  npm i && npm rebuild argon2 --build-from-source  && npm run start-dev"
+    image: node:18-bullseye
+
+    command: sh -c "apt-get update && apt-get install -y build-essential python3  && npm install argon2 --ignore-scripts  && npx @mapbox/node-pre-gyp rebuild -C ./node_modules/argon2  && npm install && npm run start-dev"
     ports:
       - 8080:8080
     working_dir: /GuriRaadi
-    volumes: 
+    volumes:
       - ./:/GuriRaadi
-    
+      - node_module:/GuriRaadi/node_modules
+
     depends_on:
       - postgresdb
 volumes:
   guri-raadi-data:
+  node_module:
+
+

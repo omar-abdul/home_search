@@ -6,3 +6,4 @@ dist
 coverage
 firebaseadmin.json
 public/tmp/uploads/*
+*.log
