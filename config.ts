@@ -1,14 +1,14 @@
 import { config } from "dotenv";
 import path from "path";
 config({ path: path.join(__dirname, ".env") });
-const { PG_DATABASE, PG_HOST, PG_PASSWORD, PG_PORT, PG_USER } = process.env;
+const { PGDATABASE, PGHOST, PGPASSWORD, PGPORT, PGUSER } = process.env;
 export default {
   DB: {
-    name: PG_DATABASE,
-    connect: process.env.DB_CONN_STRING,
-    host: PG_HOST,
-    password: PG_PASSWORD,
-    port: PG_PORT,
-    user: PG_USER,
+    name: PGDATABASE,
+    // connect: process.env.DB_CONN_STRING,
+    host: PGHOST,
+    password: PGPASSWORD,
+    port: PGPORT,
+    user: PGUSER,
   },
 };

@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import { convertToCamelCase, convertToSnakeCase } from "../../lib/util";
 import ConfigObj from "../../../config";
 
-const con = ConfigObj.DB.connect;
+// const con = ConfigObj.DB.connect;
 const db_name = ConfigObj.DB.name;
 const config = {
   development: {
@@ -34,8 +34,14 @@ const config = {
     },
   },
   production: {
-    client: db_name,
-    connection: con,
+    client: "pg",
+    connection: {
+      host: ConfigObj.DB.host,
+      port: ConfigObj.DB.port || 5432,
+      user: ConfigObj.DB.user,
+      password: ConfigObj.DB.password,
+      database: ConfigObj.DB.name,
+    },
 
     wrapIdentifier: (value: any, origImpl: any, queryContext: any) =>
       origImpl(convertToSnakeCase(value)),

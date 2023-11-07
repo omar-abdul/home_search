@@ -1,0 +1,5 @@
+# HOME SEARCH BACKEND 
+
+### SET THE ENV VARIABLES AND RENAME .ENV.EXAMPLE TO .ENV
+
+### RUN `docker compose up`
